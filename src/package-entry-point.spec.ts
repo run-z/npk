@@ -94,7 +94,7 @@ describe('PackageEntryPoint', () => {
   });
 
   describe('findJs', () => {
-    it('prefers module for', () => {
+    it('prefers module-specific imports', () => {
       const entry = createEntry({
         type: 'module',
         exports: {
@@ -105,6 +105,16 @@ describe('PackageEntryPoint', () => {
       expect(entry.findJs('module')).toBe('./default.mjs');
       expect(entry.findJs('commonjs')).toBe('./default.cjs');
       expect(entry.findJs(null)).toBe('./default.cjs');
+    });
+    it('falls back to default import', () => {
+      const entry = createEntry({
+        type: 'module',
+        exports: './default.js',
+      });
+
+      expect(entry.findJs('module')).toBe('./default.js');
+      expect(entry.findJs('commonjs')).toBe('./default.js');
+      expect(entry.findJs(null)).toBe('./default.js');
     });
   });
 

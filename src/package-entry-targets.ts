@@ -37,7 +37,10 @@ export abstract class PackageEntryTargets {
     type: PackageJson['type'] | null,
     ...conditions: string[]
   ): PackageJson.LocalPath | undefined {
-    return this.findConditional(type === 'module' ? 'import' : 'require', ...conditions);
+    return (
+      this.findConditional(type === 'module' ? 'import' : 'require', ...conditions)
+      ?? this.findConditional(...conditions)
+    );
   }
 
 }
