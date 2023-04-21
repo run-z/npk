@@ -1,0 +1,12 @@
+---
+engines:
+  duplication:
+    exclude_paths:
+    - "src/**/*.spec.ts"
+    - "src/spec/**"
+  remark-lint:
+    exclude_paths:
+    - "**/*.md"
+
+exclude_paths:
+- "**/*.md"

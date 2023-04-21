@@ -1,0 +1,8 @@
+{
+  "entryPoints": ["src/mod.ts"],
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "name": "Node.js Package Kit",
+  "out": "./target/typedoc",
+  "tsconfig": "tsconfig.main.json"
+}

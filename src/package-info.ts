@@ -1,0 +1,220 @@
+import fs from 'node:fs';
+import fsPromises from 'node:fs/promises';
+import { PackageEntryPoint } from './package-entry-point.js';
+import { PackageEntryTargets } from './package-entry-targets.js';
+import { PackageJson } from './package.json.js';
+
+/**
+ * Information collected for package from its `package.json`.
+ */
+export class PackageInfo {
+
+  /**
+   * Loads package info from `package,json` file at the given `path`.
+   *
+   * @param path - Path to `package.json` file. `package.json` by default.
+   *
+   * @returns Promise resolved to the loaded package info.
+   */
+  static async load(path = 'package.json'): Promise<PackageInfo> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return new PackageInfo(JSON.parse(await fsPromises.readFile(path, 'utf-8')));
+  }
+
+  /**
+   * Synchronously loads package info from `package,json` file at the given `path`.
+   *
+   * @param path - Path to `package.json` file. `package.json` by default.
+   *
+   * @returns Loaded package info.
+   */
+  static loadSync(path = 'package.json'): PackageInfo {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return new PackageInfo(JSON.parse(fs.readFileSync(path, 'utf-8')));
+  }
+
+  readonly #packageJson: PackageJson;
+  #entryPoints?: PackageInfo$EntryPoints;
+  #mainEntryPoint?: PackageEntryPoint;
+
+  /**
+   * Constructs package info.
+   *
+   * @param packageJson - Raw `package.json` contents.
+   */
+  constructor(packageJson: PackageJson) {
+    this.#packageJson = packageJson;
+  }
+
+  /**
+   * Raw `package.json` contents.
+   */
+  get packageJson(): PackageJson {
+    return this.#packageJson;
+  }
+
+  /**
+   * The type of the package.
+   *
+   * This is `module` only if {@link PackageJson#type package type} set to `module`. Otherwise, it's a `commonjs`.
+   */
+  get type(): 'module' | 'commonjs' {
+    return this.packageJson.type === 'module' ? 'module' : 'commonjs';
+  }
+
+  /**
+   * Main entry point of the package.
+   *
+   * Collected either from default entry of [exports] field, or from [main] field of {@link packageJson `package.json`}.
+   * May be `undefined` when neither present.
+   *
+   * [exports]: https://nodejs.org/dist/latest-v18.x/docs/api/packages.html#exports
+   * [main]: https://nodejs.org/dist/latest-v18.x/docs/api/packages.html#main
+   */
+  get mainEntryPoint(): PackageEntryPoint | undefined {
+    return (this.#mainEntryPoint ??= this.findEntryPoint('.')?.entryPoint);
+  }
+
+  /**
+   * Searches for package {@link PackageEntryPoint} corresponding to the given export path.
+   *
+   * @param path - Export path.
+   *
+   * @returns Either found entry point, or `undefined` if nothing found.
+   */
+  findEntryPoint(path: PackageJson.ExportPath): PackageEntryTargets | undefined {
+    const { byPath, patterns } = this.#getEntryPoints();
+    const entryPoint = byPath.get(path);
+
+    if (entryPoint) {
+      // Exact match.
+      return entryPoint;
+    }
+
+    for (const pattern of patterns) {
+      const match = pattern.findTargets(path);
+
+      return match; // First pattern match.
+    }
+
+    return;
+  }
+
+  /**
+   * Iterates over package entry points.
+   *
+   * @returns Iterable iterator of path/entry point tuples.
+   */
+  entryPoints(): IterableIterator<[PackageJson.ExportPath, PackageEntryPoint]> {
+    return this.#getEntryPoints().byPath.entries();
+  }
+
+  #getEntryPoints(): PackageInfo$EntryPoints {
+    return (this.#entryPoints ??= this.#buildEntryPoints());
+  }
+
+  #buildEntryPoints(): PackageInfo$EntryPoints {
+    const items = new Map<PackageJson.ExportPath, PackageInfo$EntryItem[]>();
+
+    for (const item of this.#listEntryItems()) {
+      const found = items.get(item.path);
+
+      if (found) {
+        found.push(item);
+      } else {
+        items.set(item.path, [item]);
+      }
+    }
+
+    const patterns: PackageEntryPoint[] = [];
+
+    return {
+      byPath: new Map(
+        [...items].map(([path, items]) => {
+          const entryPoint = new PackageEntryPoint(this, path, items);
+
+          if (entryPoint.isPattern()) {
+            patterns.push(entryPoint);
+          }
+
+          return [path, entryPoint];
+        }),
+      ),
+      patterns,
+    };
+  }
+
+  *#listEntryItems(): IterableIterator<PackageInfo$EntryItem> {
+    const { exports, main } = this.packageJson;
+
+    if (exports) {
+      yield* this.#condExports([], exports);
+
+      return; // Ignore `main` field.
+    }
+
+    if (main) {
+      yield {
+        path: '.',
+        conditions: [],
+        target: main.startsWith('./') ? (main as `./${string}`) : `./${main}`,
+      };
+    }
+
+    // Export everything even regardless `main` field presence.
+    yield {
+      path: './*',
+      conditions: [],
+      target: './*',
+    };
+  }
+
+  *#condExports(
+    conditions: readonly string[],
+    exports: PackageJson.TopConditionalExports | PackageJson.PathExports | `./${string}`,
+  ): IterableIterator<PackageInfo$EntryItem> {
+    if (typeof exports === 'string') {
+      yield { path: '.', conditions, target: exports };
+
+      return;
+    }
+
+    for (const [key, entry] of Object.entries(exports)) {
+      if (isPathEntry(key)) {
+        yield* this.#pathExports(key, conditions, entry);
+      } else {
+        yield* this.#condExports([...conditions, key], entry);
+      }
+    }
+  }
+
+  *#pathExports(
+    path: PackageJson.ExportPath,
+    conditions: readonly string[],
+    exports: PackageJson.ConditionalExports | `./${string}`,
+  ): IterableIterator<PackageInfo$EntryItem> {
+    if (typeof exports === 'string') {
+      yield { path, conditions, target: exports };
+
+      return;
+    }
+
+    for (const [key, entry] of Object.entries(exports)) {
+      yield* this.#pathExports(path, [...conditions, key], entry);
+    }
+  }
+
+}
+
+function isPathEntry(key: string): key is '.' | './${string' {
+  return key.startsWith('.');
+}
+
+interface PackageInfo$EntryItem extends PackageEntryPoint.Target {
+  readonly path: PackageJson.ExportPath;
+}
+
+interface PackageInfo$EntryPoints {
+  byPath: ReadonlyMap<PackageJson.ExportPath, PackageEntryPoint>;
+  patterns: readonly PackageEntryPoint[];
+}

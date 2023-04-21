@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node16",
+    "module": "Node16",
+    "target": "ES2022",
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmitHelpers": true,
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "outDir": "target/js",
+    "sourceMap": true,
+    "newLine": "LF"
+  },
+  "include": ["src/**/*"]
+}
