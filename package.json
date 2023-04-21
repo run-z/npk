@@ -22,6 +22,7 @@
     "require": "./dist/npk.cjs",
     "default": "./dist/npk.js"
   },
+  "sideEffects": false,
   "devDependencies": {
     "@jest/globals": "^29.5.0",
     "@rollup/plugin-typescript": "^11.1.0",
