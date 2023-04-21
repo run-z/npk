@@ -4,7 +4,12 @@ export default {
   collectCoverageFrom: ['src/**/*.ts', '!src/**/mod.ts', '!**/node_modules/**'],
   coverageDirectory: 'target/coverage',
   coverageThreshold: {
-    global: {},
+    global: {
+      statements: 100,
+      branches: 100,
+      functions: 100,
+      lines: 100,
+    },
   },
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
