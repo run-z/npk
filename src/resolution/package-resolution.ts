@@ -13,7 +13,7 @@ import { PackageFS } from './package-fs.js';
  */
 export interface PackageResolution extends ImportResolution {
   /**
-   * The package is a host inside of itself.
+   * The package is always a host of itself.
    */
   get host(): this;
 

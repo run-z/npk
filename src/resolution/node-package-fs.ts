@@ -18,7 +18,7 @@ export class NodePackageFS extends PackageFS {
   /**
    * Constructs file system with the given root.
    *
-   * @param root - URL or path of the root directory. Defaults to the current working directory.
+   * @param root - URL or path of the root directory. Defaults to current working directory.
    */
   constructor(root?: string) {
     super();

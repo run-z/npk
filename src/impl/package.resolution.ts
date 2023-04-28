@@ -1,5 +1,5 @@
-import { PackageInfo } from '../package-info.js';
-import { PackageJson } from '../package.json.js';
+import { type PackageInfo } from '../package-info.js';
+import { type PackageJson } from '../package.json.js';
 import { DependencyResolution } from '../resolution/dependency-resolution.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import, recognizeImport } from '../resolution/import.js';
