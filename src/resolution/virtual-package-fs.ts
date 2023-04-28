@@ -133,10 +133,6 @@ export class VirtualPackageFS extends PackageFS {
     return this.#byURI.get(uri)?.packageInfo;
   }
 
-  override loadPackageJson(uri: string): PackageJson.Valid | undefined {
-    return this.loadPackage(uri)?.packageJson;
-  }
-
   override parentDir(uri: string): string | undefined {
     const httpURL = this.#toHttpURL(uri);
     const path = httpURL.pathname;

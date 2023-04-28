@@ -1,5 +1,4 @@
 import { PackageInfo } from '../package-info.js';
-import { PackageJson } from '../package.json.js';
 import { ImportResolution } from './import-resolution.js';
 import { Import } from './import.js';
 import { PackageResolution } from './package-resolution.js';
@@ -34,24 +33,10 @@ export abstract class PackageFS {
    *
    * @param uri - Source directory.
    *
-   * @returns Either loaded package info contents, or `undefined` if directory does not contain valid `package.json`
-   * file.
+   * @returns Either loaded package info contents, or `undefined` if directory does not contain
+   * {@link isValidPackageJson valid} `package.json` file.
    */
-  loadPackage(uri: string): PackageInfo | undefined {
-    const packageJson = this.loadPackageJson(uri);
-
-    return packageJson && new PackageInfo(packageJson);
-  }
-
-  /**
-   * Tries to load `package.json` from the given directory.
-   *
-   * @param uri - Source directory.
-   *
-   * @returns Either loaded `package.json` contents, or `undefined` if directory does not contain valid `package.json`
-   * file.
-   */
-  abstract loadPackageJson(uri: string): PackageJson.Valid | undefined;
+  abstract loadPackage(uri: string): PackageInfo | undefined;
 
   /**
    * Finds parent directory.

@@ -26,13 +26,13 @@ describe('NodePackageFS', () => {
     });
   });
 
-  describe('loadPackageJson', () => {
+  describe('loadPackage', () => {
     it('ignores non-file package.json', () => {
-      expect(fs.loadPackageJson(pathToFileURL(path.resolve('testing')).href)).toBeUndefined();
+      expect(fs.loadPackage(pathToFileURL(path.resolve('testing')).href)).toBeUndefined();
     });
     it('ignores incomplete package.json', () => {
       expect(
-        fs.loadPackageJson(pathToFileURL(path.resolve('testing/wrong-package')).href),
+        fs.loadPackage(pathToFileURL(path.resolve('testing/wrong-package')).href),
       ).toBeUndefined();
     });
   });

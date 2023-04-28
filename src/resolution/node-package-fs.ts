@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { PackageInfo } from '../package-info.js';
 import { PackageJson, isValidPackageJson } from '../package.json.js';
 import { Import } from './import.js';
 import { PackageFS } from './package-fs.js';
@@ -53,7 +54,7 @@ export class NodePackageFS extends PackageFS {
     return pathToFileURL(modulePath).href;
   }
 
-  override loadPackageJson(uri: string): PackageJson.Valid | undefined {
+  override loadPackage(uri: string): PackageInfo | undefined {
     const dir = fileURLToPath(uri);
     const filePath = path.join(dir, 'package.json');
 
@@ -67,7 +68,7 @@ export class NodePackageFS extends PackageFS {
 
     const packageJson = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as PackageJson;
 
-    return isValidPackageJson(packageJson) ? packageJson : undefined;
+    return isValidPackageJson(packageJson) ? new PackageInfo(packageJson) : undefined;
   }
 
   override parentDir(uri: string): string | undefined {
