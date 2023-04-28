@@ -10,6 +10,17 @@ import { PackageJson } from './package.json.js';
 export class PackageInfo {
 
   /**
+   * Extracts package information from `package.json` contents, unless package info constructed already.
+   *
+   * @param packageJson - Either `package.json` contents, or package info instance.
+   *
+   * @returns Package info instance.
+   */
+  static from(packageJson: PackageJson | PackageInfo): PackageInfo {
+    return packageJson instanceof PackageInfo ? packageJson : new PackageInfo(packageJson);
+  }
+
+  /**
    * Loads package info from `package,json` file at the given `path`.
    *
    * @param path - Path to `package.json` file. `package.json` by default.
@@ -33,7 +44,7 @@ export class PackageInfo {
     return new PackageInfo(JSON.parse(fs.readFileSync(path, 'utf-8')));
   }
 
-  readonly #packageJson: PackageJson;
+  readonly #packageJson: PackageJson.Valid;
   #entryPoints?: PackageInfo$EntryPoints;
   #mainEntryPoint?: PackageEntryPoint;
 
@@ -43,13 +54,37 @@ export class PackageInfo {
    * @param packageJson - Raw `package.json` contents.
    */
   constructor(packageJson: PackageJson) {
-    this.#packageJson = packageJson;
+    const { name = '-', version = '0.0.0' } = packageJson;
+
+    this.#packageJson = {
+      ...packageJson,
+      name,
+      version,
+    };
+  }
+
+  /**
+   * Package name specified in {@link packageJson `package.json`}.
+   *
+   * Defaults to `-` when missing.
+   */
+  get name(): string {
+    return this.packageJson.name;
+  }
+
+  /**
+   * Package version specified in {@link packageJson `package.json`}.
+   *
+   * Defaults to `0.0.0` when missing.
+   */
+  get version(): string {
+    return this.packageJson.version;
   }
 
   /**
    * Raw `package.json` contents.
    */
-  get packageJson(): PackageJson {
+  get packageJson(): PackageJson.Valid {
     return this.#packageJson;
   }
 
