@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
+import { PackageInfo } from '../package-info.js';
 import { PackageResolution, resolveRootPackage } from './package-resolution.js';
 import { VirtualPackageFS } from './virtual-package-fs.js';
 
@@ -286,5 +287,13 @@ describe('PackageResolution', () => {
 
       expect(root.resolveDependency(dep)).toBeNull();
     });
+  });
+});
+
+describe('resolveRootPackage', () => {
+  it('obtains current package by default', () => {
+    const root = resolveRootPackage();
+
+    expect(root.packageInfo.name).toBe(PackageInfo.loadSync().name);
   });
 });
