@@ -22,8 +22,6 @@ export namespace PackageJson {
     readonly version: string;
   }
 
-  export type ExportPath = '.' | `./${string}`;
-
   export type LocalPath = `./${string}`;
 
   export type Dependencies = {
@@ -33,7 +31,7 @@ export namespace PackageJson {
   export type Exports = PathExports | TopConditionalExports | LocalPath;
 
   export type PathExports = {
-    readonly [key in PackageJson.ExportPath]: ConditionalExports | LocalPath;
+    readonly [key in PackagePath]: ConditionalExports | LocalPath;
   };
 
   export type ConditionalExports = {
@@ -44,6 +42,11 @@ export namespace PackageJson {
     readonly [key in string]: TopConditionalExports | PathExports | LocalPath;
   };
 }
+
+/**
+ * URL path within package.
+ */
+export type PackagePath = '.' | `./${string}`;
 
 /**
  * Checks whether the `package,json` contents are valid.

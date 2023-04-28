@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import fsPromises from 'node:fs/promises';
 import { PackageEntryPoint } from './package-entry-point.js';
 import { PackageEntryTargets } from './package-entry-targets.js';
-import { PackageJson } from './package.json.js';
+import { PackageJson, PackagePath } from './package.json.js';
 
 /**
  * Information collected for package from its `package.json`.
@@ -155,7 +155,7 @@ export class PackageInfo {
    *
    * @returns Either found entry point, or `undefined` if nothing found.
    */
-  findEntryPoint(path: PackageJson.ExportPath): PackageEntryTargets | undefined {
+  findEntryPoint(path: PackagePath): PackageEntryTargets | undefined {
     const { byPath, patterns } = this.#getEntryPoints();
     const entryPoint = byPath.get(path);
 
@@ -178,7 +178,7 @@ export class PackageInfo {
    *
    * @returns Iterable iterator of path/entry point tuples.
    */
-  entryPoints(): IterableIterator<[PackageJson.ExportPath, PackageEntryPoint]> {
+  entryPoints(): IterableIterator<[PackagePath, PackageEntryPoint]> {
     return this.#getEntryPoints().byPath.entries();
   }
 
@@ -187,7 +187,7 @@ export class PackageInfo {
   }
 
   #buildEntryPoints(): PackageInfo$EntryPoints {
-    const items = new Map<PackageJson.ExportPath, PackageInfo$EntryItem[]>();
+    const items = new Map<PackagePath, PackageInfo$EntryItem[]>();
 
     for (const item of this.#listEntryItems()) {
       const found = items.get(item.path);
@@ -262,7 +262,7 @@ export class PackageInfo {
   }
 
   *#pathExports(
-    path: PackageJson.ExportPath,
+    path: PackagePath,
     conditions: readonly string[],
     exports: PackageJson.ConditionalExports | `./${string}`,
   ): IterableIterator<PackageInfo$EntryItem> {
@@ -284,10 +284,10 @@ function isPathEntry(key: string): key is '.' | './${string' {
 }
 
 interface PackageInfo$EntryItem extends PackageEntryPoint.Target {
-  readonly path: PackageJson.ExportPath;
+  readonly path: PackagePath;
 }
 
 interface PackageInfo$EntryPoints {
-  byPath: ReadonlyMap<PackageJson.ExportPath, PackageEntryPoint>;
+  byPath: ReadonlyMap<PackagePath, PackageEntryPoint>;
   patterns: readonly PackageEntryPoint[];
 }
