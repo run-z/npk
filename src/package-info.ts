@@ -45,6 +45,7 @@ export class PackageInfo {
   }
 
   readonly #packageJson: PackageJson.Valid;
+  #nameParts?: [localName: string, scope?: `@${string}`];
   #entryPoints?: PackageInfo$EntryPoints;
   #mainEntryPoint?: PackageEntryPoint;
 
@@ -64,12 +65,49 @@ export class PackageInfo {
   }
 
   /**
-   * Package name specified in {@link packageJson `package.json`}.
+   * Full package name as specified in `package.json`.
    *
-   * Defaults to `-` when missing.
+   * When missing, defaults to `-`.
    */
   get name(): string {
     return this.packageJson.name;
+  }
+
+  /**
+   * Resolved package scope. I.e. the part of the {@link name} after `@` prefix, if any.
+   */
+  get scope(): `@${string}` | undefined {
+    return this.#getNameParts()[1];
+  }
+
+  /**
+   * Local name within package {@link scope}.
+   *
+   * Part of the name after the the slash `/` for scoped package, or the name itself for unscoped one.
+   */
+  get localName(): string {
+    return this.#getNameParts()[0];
+  }
+
+  #getNameParts(): [localName: string, scope?: `@${string}`] {
+    if (this.#nameParts) {
+      return this.#nameParts;
+    }
+
+    const { name } = this;
+
+    if (!name.startsWith('@')) {
+      return (this.#nameParts = [name]);
+    }
+
+    const scopeEnd = name.indexOf('/', 1);
+
+    if (scopeEnd < 0) {
+      // Invalid name.
+      return [name];
+    }
+
+    return [name.slice(scopeEnd + 1), name.slice(0, scopeEnd) as `@${string}`];
   }
 
   /**

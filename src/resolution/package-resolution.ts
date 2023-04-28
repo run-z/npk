@@ -29,28 +29,6 @@ export interface PackageResolution extends ImportResolution {
    */
   get packageInfo(): PackageInfo;
 
-  /**
-   * Full resolved package name as specified in `package.json`.
-   */
-  get name(): string;
-
-  /**
-   * Resolved package scope. I.e. the part of the {@link name} after `@` prefix, if any.
-   */
-  get scope(): string | undefined;
-
-  /**
-   * Local name within resolved package {@link scope}.
-   *
-   * Part of the name after the the slash `/` for scoped package, or the name itself for unscoped one.
-   */
-  get localName(): string;
-
-  /**
-   * Resolved package version.
-   */
-  get version(): string;
-
   asPackage(): this;
 }
 

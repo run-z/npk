@@ -44,43 +44,43 @@ describe('PackageResolution', () => {
 
   describe('scope', () => {
     it('is obtained from package.json', () => {
-      expect(root.scope).toBe('@test-scope');
+      expect(root.packageInfo.scope).toBe('@test-scope');
     });
     it('is recognized with wrong name', () => {
       fs.addPackage(fs.root, { name: '@wrong-name', version: '1.0.0' });
 
       root = resolveRootPackage(fs);
-      expect(root.scope).toBeUndefined();
+      expect(root.packageInfo.scope).toBeUndefined();
     });
   });
 
   describe('name', () => {
     it('is obtained from package.json', () => {
-      expect(root.name).toBe('@test-scope/root-package');
+      expect(root.packageInfo.name).toBe('@test-scope/root-package');
     });
     it('is recognized with wrong name', () => {
       fs.addPackage(fs.root, { name: '@wrong-name', version: '1.0.0' });
 
       root = resolveRootPackage(fs);
-      expect(root.name).toBe('@wrong-name');
+      expect(root.packageInfo.name).toBe('@wrong-name');
     });
   });
 
   describe('localName', () => {
     it('is obtained from package.json', () => {
-      expect(root.localName).toBe('root-package');
+      expect(root.packageInfo.localName).toBe('root-package');
     });
   });
 
   describe('version', () => {
     it('is obtained from package.json', () => {
-      expect(root.version).toBe('1.0.0');
+      expect(root.packageInfo.version).toBe('1.0.0');
     });
   });
 
   describe('resolveImport', () => {
     it('resolves itself', () => {
-      expect(root.resolveImport(root.name)).toBe(root);
+      expect(root.resolveImport(root.packageInfo.name)).toBe(root);
     });
     it('resolves submodule', () => {
       const uri = root.uri + '/test/submodule';

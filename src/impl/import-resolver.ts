@@ -118,7 +118,7 @@ export class ImportResolver {
 
     if (candidates) {
       for (const candidate of candidates) {
-        if (range.test(candidate.version)) {
+        if (range.test(candidate.packageInfo.version)) {
           return candidate;
         }
       }
@@ -164,12 +164,12 @@ export class ImportResolver {
       const pkg = resolution.asPackage();
 
       if (pkg) {
-        const withSameName = this.#byName.get(pkg.name);
+        const withSameName = this.#byName.get(pkg.packageInfo.name);
 
         if (withSameName) {
           withSameName.push(pkg);
         } else {
-          this.#byName.set(pkg.name, [pkg]);
+          this.#byName.set(pkg.packageInfo.name, [pkg]);
         }
       }
     }

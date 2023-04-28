@@ -56,7 +56,7 @@ export abstract class Module$Resolution<TImport extends Import> extends Import$R
   resolveDep(depName: string): PackageResolution | undefined {
     const { host } = this;
 
-    if (depName === host.name) {
+    if (depName === host.packageInfo.name) {
       return host; // Resolve to host package.
     }
 

@@ -45,22 +45,6 @@ export class Package$Resolution
     return this.#packageInfo;
   }
 
-  get name(): string {
-    return this.packageInfo.name;
-  }
-
-  get scope(): string | undefined {
-    return this.importSpec.scope;
-  }
-
-  get localName(): string {
-    return this.importSpec.local;
-  }
-
-  get version(): string {
-    return this.packageInfo.version;
-  }
-
   #getPeerDependencies(): PackageJson.Dependencies {
     if (this.#peerDependencies) {
       return this.#peerDependencies;
@@ -131,7 +115,7 @@ export class Package$Resolution
       return null;
     }
 
-    const { name, version } = pkg;
+    const { name, version } = pkg.packageInfo;
     const range = parseRange(dependencies[name]);
 
     if (!range?.test(version)) {
