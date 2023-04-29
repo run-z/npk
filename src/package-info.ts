@@ -2,12 +2,23 @@ import fs from 'node:fs';
 import fsPromises from 'node:fs/promises';
 import { PackageEntryPoint } from './package-entry-point.js';
 import { PackageEntryTargets } from './package-entry-targets.js';
-import { PackageJson } from './package.json.js';
+import { PackageJson, PackagePath } from './package.json.js';
 
 /**
  * Information collected for package from its `package.json`.
  */
 export class PackageInfo {
+
+  /**
+   * Extracts package information from `package.json` contents, unless package info constructed already.
+   *
+   * @param packageJson - Either `package.json` contents, or package info instance.
+   *
+   * @returns Package info instance.
+   */
+  static from(packageJson: PackageJson | PackageInfo): PackageInfo {
+    return packageJson instanceof PackageInfo ? packageJson : new PackageInfo(packageJson);
+  }
 
   /**
    * Loads package info from `package,json` file at the given `path`.
@@ -33,7 +44,8 @@ export class PackageInfo {
     return new PackageInfo(JSON.parse(fs.readFileSync(path, 'utf-8')));
   }
 
-  readonly #packageJson: PackageJson;
+  readonly #packageJson: PackageJson.Valid;
+  #nameParts?: [localName: string, scope?: `@${string}`];
   #entryPoints?: PackageInfo$EntryPoints;
   #mainEntryPoint?: PackageEntryPoint;
 
@@ -43,13 +55,74 @@ export class PackageInfo {
    * @param packageJson - Raw `package.json` contents.
    */
   constructor(packageJson: PackageJson) {
-    this.#packageJson = packageJson;
+    const { name = '-', version = '0.0.0' } = packageJson;
+
+    this.#packageJson = {
+      ...packageJson,
+      name,
+      version,
+    };
+  }
+
+  /**
+   * Full package name as specified in `package.json`.
+   *
+   * When missing, defaults to `-`.
+   */
+  get name(): string {
+    return this.packageJson.name;
+  }
+
+  /**
+   * Resolved package scope. I.e. the part of the {@link name} after `@` prefix, if any.
+   */
+  get scope(): `@${string}` | undefined {
+    return this.#getNameParts()[1];
+  }
+
+  /**
+   * Local name within package {@link scope}.
+   *
+   * Part of the name after the the slash `/` for scoped package, or the name itself for unscoped one.
+   */
+  get localName(): string {
+    return this.#getNameParts()[0];
+  }
+
+  #getNameParts(): [localName: string, scope?: `@${string}`] {
+    if (this.#nameParts) {
+      return this.#nameParts;
+    }
+
+    const { name } = this;
+
+    if (!name.startsWith('@')) {
+      return (this.#nameParts = [name]);
+    }
+
+    const scopeEnd = name.indexOf('/', 1);
+
+    if (scopeEnd < 0) {
+      // Invalid name.
+      return [name];
+    }
+
+    return [name.slice(scopeEnd + 1), name.slice(0, scopeEnd) as `@${string}`];
+  }
+
+  /**
+   * Package version specified in {@link packageJson `package.json`}.
+   *
+   * Defaults to `0.0.0` when missing.
+   */
+  get version(): string {
+    return this.packageJson.version;
   }
 
   /**
    * Raw `package.json` contents.
    */
-  get packageJson(): PackageJson {
+  get packageJson(): PackageJson.Valid {
     return this.#packageJson;
   }
 
@@ -82,7 +155,7 @@ export class PackageInfo {
    *
    * @returns Either found entry point, or `undefined` if nothing found.
    */
-  findEntryPoint(path: PackageJson.ExportPath): PackageEntryTargets | undefined {
+  findEntryPoint(path: PackagePath): PackageEntryTargets | undefined {
     const { byPath, patterns } = this.#getEntryPoints();
     const entryPoint = byPath.get(path);
 
@@ -105,7 +178,7 @@ export class PackageInfo {
    *
    * @returns Iterable iterator of path/entry point tuples.
    */
-  entryPoints(): IterableIterator<[PackageJson.ExportPath, PackageEntryPoint]> {
+  entryPoints(): IterableIterator<[PackagePath, PackageEntryPoint]> {
     return this.#getEntryPoints().byPath.entries();
   }
 
@@ -114,7 +187,7 @@ export class PackageInfo {
   }
 
   #buildEntryPoints(): PackageInfo$EntryPoints {
-    const items = new Map<PackageJson.ExportPath, PackageInfo$EntryItem[]>();
+    const items = new Map<PackagePath, PackageInfo$EntryItem[]>();
 
     for (const item of this.#listEntryItems()) {
       const found = items.get(item.path);
@@ -189,7 +262,7 @@ export class PackageInfo {
   }
 
   *#pathExports(
-    path: PackageJson.ExportPath,
+    path: PackagePath,
     conditions: readonly string[],
     exports: PackageJson.ConditionalExports | `./${string}`,
   ): IterableIterator<PackageInfo$EntryItem> {
@@ -211,10 +284,10 @@ function isPathEntry(key: string): key is '.' | './${string' {
 }
 
 interface PackageInfo$EntryItem extends PackageEntryPoint.Target {
-  readonly path: PackageJson.ExportPath;
+  readonly path: PackagePath;
 }
 
 interface PackageInfo$EntryPoints {
-  byPath: ReadonlyMap<PackageJson.ExportPath, PackageEntryPoint>;
+  byPath: ReadonlyMap<PackagePath, PackageEntryPoint>;
   patterns: readonly PackageEntryPoint[];
 }

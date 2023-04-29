@@ -1,6 +1,6 @@
 import { PackageEntryTargets } from './package-entry-targets.js';
 import { PackageInfo } from './package-info.js';
-import { PackageJson } from './package.json.js';
+import { PackageJson, PackagePath } from './package.json.js';
 
 /**
  * Information on package [entry point].
@@ -10,7 +10,7 @@ import { PackageJson } from './package.json.js';
 export class PackageEntryPoint extends PackageEntryTargets {
 
   readonly #packageInfo: PackageInfo;
-  readonly #path: PackageJson.ExportPath;
+  readonly #path: PackagePath;
   #isPattern?: boolean;
   #pattern?: RegExp;
   #targetsByCondition = new Map<string, Set<PackageJson.LocalPath>>();
@@ -24,7 +24,7 @@ export class PackageEntryPoint extends PackageEntryTargets {
    */
   constructor(
     packageInfo: PackageInfo,
-    path: PackageJson.ExportPath,
+    path: PackagePath,
     targets: readonly PackageEntryPoint.Target[],
   ) {
     super();
@@ -63,7 +63,7 @@ export class PackageEntryPoint extends PackageEntryTargets {
   /**
    * Exported path or pattern.
    */
-  get path(): PackageJson.ExportPath {
+  get path(): PackagePath {
     return this.#path;
   }
 
@@ -85,7 +85,7 @@ export class PackageEntryPoint extends PackageEntryTargets {
    *
    * @returns Either exported targets, or `undefined` if the `path` is not exported.
    */
-  findTargets(path: PackageJson.ExportPath): PackageEntryTargets | undefined {
+  findTargets(path: PackagePath): PackageEntryTargets | undefined {
     const substitution = this.#findSubstitution(path);
 
     return substitution
@@ -95,7 +95,7 @@ export class PackageEntryPoint extends PackageEntryTargets {
       : undefined;
   }
 
-  #findSubstitution(path: PackageJson.ExportPath): string | undefined {
+  #findSubstitution(path: PackagePath): string | undefined {
     if (this.isPattern()) {
       this.#pattern ??= new RegExp(
         '^'

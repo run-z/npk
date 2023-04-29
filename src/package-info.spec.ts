@@ -2,6 +2,17 @@ import { describe, expect, it } from '@jest/globals';
 import { PackageInfo } from './package-info.js';
 
 describe('PackageInfo', () => {
+  describe('from', () => {
+    it('returns package info itself', () => {
+      const packageInfo = new PackageInfo({ name: 'test' });
+
+      expect(PackageInfo.from(packageInfo)).toBe(packageInfo);
+    });
+    it('constructs package info from package.json contents', () => {
+      expect(PackageInfo.from({ name: 'test' }).name).toBe('test');
+    });
+  });
+
   describe('load', () => {
     it('loads package info asynchronously', async () => {
       const info = await PackageInfo.load();
@@ -15,6 +26,51 @@ describe('PackageInfo', () => {
       const info = PackageInfo.loadSync();
 
       expect(info.packageJson.name).toBe('@run-z/npk');
+    });
+  });
+
+  describe('name', () => {
+    it('defaults to -', () => {
+      expect(new PackageInfo({}).name).toBe('-');
+    });
+    it('reflects package.json contents', () => {
+      expect(new PackageInfo({ name: 'test' }).name).toBe('test');
+    });
+  });
+
+  describe('version', () => {
+    it('defaults to 0.0.0', () => {
+      expect(new PackageInfo({}).version).toBe('0.0.0');
+    });
+    it('reflects package.json contents', () => {
+      expect(new PackageInfo({ version: '1.0.0-pre.1' }).version).toBe('1.0.0-pre.1');
+    });
+  });
+
+  describe('scope', () => {
+    it('is undefined when missing', () => {
+      expect(new PackageInfo({ name: 'test' }).scope).toBeUndefined();
+    });
+    it('is undefined for invalid name', () => {
+      expect(new PackageInfo({ name: '@test' }).scope).toBeUndefined();
+    });
+    it('equals to package scope name', () => {
+      expect(new PackageInfo({ name: '@test/package' }).scope).toBe('@test');
+    });
+  });
+
+  describe('localName', () => {
+    it('equals to name when scope unspecified', () => {
+      const packageInfo = new PackageInfo({ name: 'test' });
+
+      expect(packageInfo.localName).toBe('test');
+      expect(packageInfo.localName).toBe('test');
+    });
+    it('equals to name for invalid name', () => {
+      expect(new PackageInfo({ name: '@test' }).localName).toBe('@test');
+    });
+    it('equals to package local name', () => {
+      expect(new PackageInfo({ name: '@test/package' }).localName).toBe('package');
     });
   });
 
