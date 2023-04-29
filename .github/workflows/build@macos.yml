@@ -20,7 +20,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-       name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Install Node.js
@@ -28,8 +28,8 @@ jobs:
         with:
           node-version: '18'
 
-      - uses: pnpm/action-setup@v2
-        name: Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
         id: pnpm-install
         with:
           version: '8'
