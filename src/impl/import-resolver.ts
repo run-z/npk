@@ -150,10 +150,10 @@ export class ImportResolver {
     });
   }
 
-  #resolvePackageByDir({ uri, packageInfo: packageJson }: PackageFS.PackageDir): ImportResolution {
+  #resolvePackageByDir({ uri, packageInfo }: PackageFS.PackageDir): ImportResolution {
     return this.resolveURI(
       uriToImport(new URL(uri)),
-      () => new Package$Resolution(this, uri, undefined, packageJson),
+      () => new Package$Resolution(this, uri, undefined, packageInfo),
     );
   }
 

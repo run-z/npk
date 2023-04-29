@@ -21,6 +21,12 @@ describe('ImportResolution', () => {
       resolution = root.resolveImport('http://localhost/pkg/test?ver=2.0.0');
     });
 
+    describe('resolutionBaseURI', () => {
+      it('the same as URI', () => {
+        expect(resolution.resolutionBaseURI).toBe(resolution.uri);
+      });
+    });
+
     describe('asPackageResolution', () => {
       it('returns none', () => {
         expect(resolution.asPackage()).toBeUndefined();

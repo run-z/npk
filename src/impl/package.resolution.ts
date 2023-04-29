@@ -13,6 +13,7 @@ export class Package$Resolution
   implements PackageResolution {
 
   readonly #resolver: ImportResolver;
+  readonly #resolutionBaseURI: string;
   #packageInfo: PackageInfo | undefined;
   readonly #dependencies = new Map<string, PackageDep | false>();
   #peerDependencies?: PackageJson.Dependencies;
@@ -26,11 +27,20 @@ export class Package$Resolution
     super(resolver, uri, importSpec ?? (() => packageImportSpec(this)));
 
     this.#resolver = resolver;
+
+    const baseURL = new URL(uri);
+
+    this.#resolutionBaseURI = baseURL.protocol + baseURL.host + baseURL.pathname + '/';
+
     this.#packageInfo = packageInfo;
   }
 
   override get host(): this {
     return this;
+  }
+
+  override get resolutionBaseURI(): string {
+    return this.#resolutionBaseURI;
   }
 
   get packageInfo(): PackageInfo {
@@ -131,19 +141,23 @@ export class Package$Resolution
 
 }
 
-function packageImportSpec({ packageInfo: { name } }: PackageResolution): Import.Package {
+function packageImportSpec({
+  packageInfo: { name, scope, localName },
+}: PackageResolution): Import.Package {
   const spec = recognizeImport(name);
 
   if (spec.kind === 'package') {
     return spec;
   }
 
+  // Invalid package specifier.
+  // Reconstruct import specifier from package info.
   return {
     kind: 'package',
     spec: name,
     name,
-    scope: undefined,
-    local: name,
+    scope,
+    local: localName,
     subpath: undefined,
   };
 }

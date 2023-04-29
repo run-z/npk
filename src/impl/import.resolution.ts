@@ -38,6 +38,10 @@ export abstract class Import$Resolution<TImport extends Import> implements Impor
     return this.#uri;
   }
 
+  get resolutionBaseURI(): string {
+    return this.uri;
+  }
+
   get importSpec(): TImport {
     return this.#getImportSpec();
   }

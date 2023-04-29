@@ -14,6 +14,12 @@ describe('PackageResolution', () => {
     root = resolveRootPackage(fs);
   });
 
+  describe('resolutionBaseURI', () => {
+    it('ends with slash', () => {
+      expect(root.resolutionBaseURI).toBe(`${root.uri}/`);
+    });
+  });
+
   describe('packageInfo', () => {
     it('loads package.json contents', () => {
       expect(root.packageInfo.packageJson).toEqual({
@@ -39,6 +45,17 @@ describe('PackageResolution', () => {
         name: '@test-scope/root-package',
         scope: '@test-scope',
         local: 'root-package',
+      });
+    });
+    it('is constructed for invalid package', () => {
+      fs = new VirtualPackageFS().addPackage(fs.root, { name: '@wrong-package', version: '1.0.0' });
+      root = resolveRootPackage(fs);
+
+      expect(root.importSpec).toEqual({
+        kind: 'package',
+        spec: '@wrong-package',
+        name: '@wrong-package',
+        local: '@wrong-package',
       });
     });
   });
@@ -82,6 +99,12 @@ describe('PackageResolution', () => {
   describe('resolveImport', () => {
     it('resolves itself', () => {
       expect(root.resolveImport(root.packageInfo.name)).toBe(root);
+    });
+    it('resolves itself by URI', () => {
+      expect(root.resolveImport(root.uri)).toBe(root);
+    });
+    it('resolves itself by directory URI', () => {
+      expect(root.resolveImport(root.resolutionBaseURI)).toBe(root);
     });
     it('resolves submodule', () => {
       const uri = root.uri + '/test/submodule';

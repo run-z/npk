@@ -15,6 +15,7 @@ export abstract class Module$Resolution<TImport extends Import> extends Import$R
 
     this.#resolver = resolver;
   }
+
   abstract override get host(): PackageResolution;
 
   override resolveImport(spec: Import | string): ImportResolution {

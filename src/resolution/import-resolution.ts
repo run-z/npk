@@ -33,6 +33,13 @@ export interface ImportResolution {
   get uri(): string;
 
   /**
+   * URI used as {@link PackageFS#resolvePath path resolution} base.
+   *
+   * Defaults to {@link uri}. But may a directory URI instead.
+   */
+  get resolutionBaseURI(): string;
+
+  /**
    * Resolves another module imported by this one.
    *
    * @param spec - Imported module specifier, either {@link recognizeImport recognized} or not.

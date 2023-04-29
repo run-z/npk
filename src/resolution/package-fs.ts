@@ -58,7 +58,15 @@ export abstract class PackageFS {
    * @returns URI of the resolved path.
    */
   resolvePath(relativeTo: ImportResolution, path: string): string | URL {
-    return new URL(path, relativeTo.uri);
+    const resolution = new URL(path, relativeTo.resolutionBaseURI);
+    const { pathname } = resolution;
+
+    if (pathname.endsWith('/') && pathname.length > 1 && !path.endsWith('/')) {
+      // Remove trailing slash.
+      resolution.pathname = pathname.slice(0, -1);
+    }
+
+    return resolution;
   }
 
   /**
