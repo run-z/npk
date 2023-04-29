@@ -4,6 +4,7 @@ import { DependencyResolution } from '../resolution/dependency-resolution.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import, recognizeImport } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
+import { dirURI } from './dir-uri.js';
 import { ImportResolver } from './import-resolver.js';
 import { Module$Resolution } from './module.resolution.js';
 import { parseRange } from './parse-range.js';
@@ -27,11 +28,7 @@ export class Package$Resolution
     super(resolver, uri, importSpec ?? (() => packageImportSpec(this)));
 
     this.#resolver = resolver;
-
-    const baseURL = new URL(uri);
-
-    this.#resolutionBaseURI = baseURL.protocol + baseURL.host + baseURL.pathname + '/';
-
+    this.#resolutionBaseURI = dirURI(uri);
     this.#packageInfo = packageInfo;
   }
 

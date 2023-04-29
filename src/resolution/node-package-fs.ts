@@ -42,7 +42,9 @@ export class NodePackageFS extends PackageFS {
   }
 
   override resolveName(relativeTo: PackageResolution, name: string): string | undefined {
-    const requireModule = createRequire(relativeTo.uri + '/' /* in case of package directory */);
+    const requireModule = createRequire(
+      relativeTo.resolutionBaseURI + 'index.js' /* in case of package directory */,
+    );
     let modulePath: string;
 
     try {
