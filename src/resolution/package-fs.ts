@@ -29,7 +29,7 @@ export abstract class PackageFS {
   /**
    * Tries to load package info from the given directory.
    *
-   * By default, detects package info by the {@link loadPackageJson loaded} `package.json` contents.
+   * By default, detects package info by the loaded `package.json` contents.
    *
    * @param uri - Source directory.
    *
