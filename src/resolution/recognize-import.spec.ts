@@ -80,6 +80,16 @@ describe('recognizeImport', () => {
         local: 'test-package',
       });
     });
+    it('recognizes package ending with slash', () => {
+      const spec = 'test-package/';
+
+      expect(recognizeImport(spec)).toEqual({
+        kind: 'package',
+        spec: 'test-package',
+        name: 'test-package',
+        local: 'test-package',
+      });
+    });
     it('does not recognize wrong package name', () => {
       expect(recognizeImport('@test')).toEqual({ kind: 'unknown', spec: '@test' });
       expect(recognizeImport('_test')).toEqual({ kind: 'unknown', spec: '_test' });

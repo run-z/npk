@@ -237,6 +237,7 @@ function recognizeSubPackageImport(
     subpath = spec.slice(nameEnd) as `/${string}`;
     if (subpath.length === 1) {
       subpath = undefined;
+      spec = spec.slice(0, -1);
     }
   }
 
