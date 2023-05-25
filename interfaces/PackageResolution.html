@@ -22,11 +22,11 @@
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
-<li><a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a>
+<li><a href="SubPackageResolution.html" class="tsd-signature-type tsd-kind-interface">SubPackageResolution</a><span class="tsd-signature-symbol">&lt;</span><a href="Import.Package.html" class="tsd-signature-type tsd-kind-interface">Package</a><span class="tsd-signature-symbol">&gt;</span>
 <ul class="tsd-hierarchy">
 <li><span class="target">PackageResolution</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/package-resolution.ts#L14">resolution/package-resolution.ts:14</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/package-resolution.ts#L15">resolution/package-resolution.ts:15</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -35,15 +35,17 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Accessors</h3>
 <div class="tsd-index-list"><a href="PackageResolution.html#host" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4D4D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-262144-path"></rect><path d="M8.85 16L11.13 7.24H12.582L14.85 16H13.758L13.182 13.672H10.53L9.954 16H8.85ZM10.746 12.76H12.954L12.282 10.06C12.154 9.548 12.054 9.12 11.982 8.776C11.91 8.432 11.866 8.208 11.85 8.104C11.834 8.208 11.79 8.432 11.718 8.776C11.646 9.12 11.546 9.544 11.418 10.048L10.746 12.76Z" fill="var(--color-text)" id="icon-262144-text"></path></svg><span>host</span></a>
-<a href="PackageResolution.html#importSpec" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>import<wbr/>Spec</span></a>
+<a href="PackageResolution.html#importSpec" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>import<wbr/>Spec</span></a>
 <a href="PackageResolution.html#packageInfo" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>package<wbr/>Info</span></a>
 <a href="PackageResolution.html#resolutionBaseURI" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>resolution<wbr/>BaseURI</span></a>
 <a href="PackageResolution.html#root" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>root</span></a>
+<a href="PackageResolution.html#subpath" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>subpath</span></a>
 <a href="PackageResolution.html#uri" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>uri</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
 <div class="tsd-index-list"><a href="PackageResolution.html#asPackage" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>as<wbr/>Package</span></a>
+<a href="PackageResolution.html#asSubPackage" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>as<wbr/>Sub<wbr/>Package</span></a>
 <a href="PackageResolution.html#resolveDependency" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolve<wbr/>Dependency</span></a>
 <a href="PackageResolution.html#resolveImport" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolve<wbr/>Import</span></a>
 </div></section></div></details></section></section>
@@ -57,20 +59,20 @@
 <div class="tsd-comment tsd-typography"><p>The package is always a host of itself.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><aside class="tsd-sources">
-<p>Overrides ImportResolution.host</p>
+<p>Overrides SubPackageResolution.host</p>
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/package-resolution.ts#L18">resolution/package-resolution.ts:18</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member"><a id="importSpec" class="tsd-anchor"></a>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/package-resolution.ts#L19">resolution/package-resolution.ts:19</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="importSpec" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>import<wbr/>Spec</span><a href="#importSpec" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature" id="importSpec.importSpec-1"><span class="tsd-signature-symbol">get</span> importSpec<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Import.Package.html" class="tsd-signature-type tsd-kind-interface">Package</a></li>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature" id="importSpec.importSpec-1"><span class="tsd-signature-symbol">get</span> importSpec<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type tsd-kind-type-parameter">TImport</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Resolved import specifier.</p>
 </div>
-<h4 class="tsd-returns-title">Returns <a href="Import.Package.html" class="tsd-signature-type tsd-kind-interface">Package</a></h4><aside class="tsd-sources">
-<p>Overrides ImportResolution.importSpec</p>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type tsd-kind-type-parameter">TImport</span></h4><aside class="tsd-sources">
+<p>Inherited from SubPackageResolution.importSpec</p>
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/package-resolution.ts#L25">resolution/package-resolution.ts:25</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/import-resolution.ts#L31">resolution/import-resolution.ts:31</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="packageInfo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>package<wbr/>Info</span><a href="#packageInfo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -80,31 +82,42 @@
 </div>
 <h4 class="tsd-returns-title">Returns <a href="../classes/PackageInfo.html" class="tsd-signature-type tsd-kind-class">PackageInfo</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/package-resolution.ts#L30">resolution/package-resolution.ts:30</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/package-resolution.ts#L29">resolution/package-resolution.ts:29</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="resolutionBaseURI" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>resolution<wbr/>BaseURI</span><a href="#resolutionBaseURI" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
 <li class="tsd-signature" id="resolutionBaseURI.resolutionBaseURI-1"><span class="tsd-signature-symbol">get</span> resolutionBaseURI<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>URI used as <a href="../classes/PackageFS-1.html#resolvePath" class="tsd-kind-method">path resolution</a> base.</p>
-<p>Defaults to <a href="ImportResolution.html#uri" class="tsd-kind-accessor">uri</a>. But may a directory URI instead.</p>
+<p>Defaults to <a href="ImportResolution.html#uri" class="tsd-kind-accessor">uri</a>. But may be a directory URI instead.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
-<p>Inherited from ImportResolution.resolutionBaseURI</p>
+<p>Inherited from SubPackageResolution.resolutionBaseURI</p>
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/import-resolution.ts#L40">resolution/import-resolution.ts:40</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/import-resolution.ts#L43">resolution/import-resolution.ts:43</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="root" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>root</span><a href="#root" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
-<li class="tsd-signature" id="root.root-1"><span class="tsd-signature-symbol">get</span> root<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a></li>
+<li class="tsd-signature" id="root.root-1"><span class="tsd-signature-symbol">get</span> root<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/Import-1.html" class="tsd-signature-type tsd-kind-type-alias">Import</a><span class="tsd-signature-symbol">&gt;</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Root module resolution.</p>
 <p>This is typically a package resolution created by <a href="../functions/resolveRootPackage.html" class="tsd-kind-function">resolveRootPackage</a> function.</p>
 </div>
-<h4 class="tsd-returns-title">Returns <a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a></h4><aside class="tsd-sources">
-<p>Inherited from ImportResolution.root</p>
+<h4 class="tsd-returns-title">Returns <a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/Import-1.html" class="tsd-signature-type tsd-kind-type-alias">Import</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<p>Inherited from SubPackageResolution.root</p>
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/import-resolution.ts#L16">resolution/import-resolution.ts:16</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/import-resolution.ts#L19">resolution/import-resolution.ts:19</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="subpath" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>subpath</span><a href="#subpath" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="subpath.subpath-1"><span class="tsd-signature-symbol">get</span> subpath<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;&quot;</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Always empty path.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">&quot;&quot;</span></h4><aside class="tsd-sources">
+<p>Overrides SubPackageResolution.subpath</p>
+<ul>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/package-resolution.ts#L34">resolution/package-resolution.ts:34</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="uri" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>uri</span><a href="#uri" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -113,9 +126,9 @@
 <div class="tsd-comment tsd-typography"><p>URI of package directory.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
-<p>Overrides ImportResolution.uri</p>
+<p>Overrides SubPackageResolution.uri</p>
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/package-resolution.ts#L23">resolution/package-resolution.ts:23</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/package-resolution.ts#L24">resolution/package-resolution.ts:24</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="asPackage" class="tsd-anchor"></a>
@@ -123,13 +136,23 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="asPackage.asPackage-1"><span class="tsd-kind-call-signature">as<wbr/>Package</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="PackageResolution.html" class="tsd-signature-type tsd-kind-interface">PackageResolution</a><a href="#asPackage.asPackage-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Represents this module resolution as package resolution, if possible.</p>
+<div class="tsd-comment tsd-typography"><p>Always returns itself.</p>
 </div>
-<h4 class="tsd-returns-title">Returns <a href="PackageResolution.html" class="tsd-signature-type tsd-kind-interface">PackageResolution</a></h4><p><code>this</code> instance for package resolution, or <code>undefined</code> otherwise.</p>
-<aside class="tsd-sources">
-<p>Overrides <a href="ImportResolution.html">ImportResolution</a>.<a href="ImportResolution.html#asPackage">asPackage</a></p>
+<h4 class="tsd-returns-title">Returns <a href="PackageResolution.html" class="tsd-signature-type tsd-kind-interface">PackageResolution</a></h4><aside class="tsd-sources">
+<p>Overrides <a href="SubPackageResolution.html">SubPackageResolution</a>.<a href="SubPackageResolution.html#asPackage">asPackage</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/package-resolution.ts#L32">resolution/package-resolution.ts:32</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/package-resolution.ts#L39">resolution/package-resolution.ts:39</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="asSubPackage" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>as<wbr/>Sub<wbr/>Package</span><a href="#asSubPackage" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="asSubPackage.asSubPackage-1"><span class="tsd-kind-call-signature">as<wbr/>Sub<wbr/>Package</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="PackageResolution.html" class="tsd-signature-type tsd-kind-interface">PackageResolution</a><a href="#asSubPackage.asSubPackage-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Always returns itself.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <a href="PackageResolution.html" class="tsd-signature-type tsd-kind-interface">PackageResolution</a></h4><aside class="tsd-sources">
+<p>Inherited from <a href="SubPackageResolution.html">SubPackageResolution</a>.<a href="SubPackageResolution.html#asSubPackage">asSubPackage</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/sub-package-resolution.ts#L40">resolution/sub-package-resolution.ts:40</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="resolveDependency" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>resolve<wbr/>Dependency</span><a href="#resolveDependency" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -141,18 +164,18 @@
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">another</span>: <a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a></h5>
+<h5><span class="tsd-kind-parameter">another</span>: <a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/Import-1.html" class="tsd-signature-type tsd-kind-type-alias">Import</a><span class="tsd-signature-symbol">&gt;</span></h5>
 <div class="tsd-comment tsd-typography"><p>The package to check.</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="DependencyResolution.html" class="tsd-signature-type tsd-kind-interface">DependencyResolution</a></h4><p>Either dependency descriptor, or <code>null</code> if the module does not depend on <code>another</code> one.</p>
 <aside class="tsd-sources">
-<p>Inherited from <a href="ImportResolution.html">ImportResolution</a>.<a href="ImportResolution.html#resolveDependency">resolveDependency</a></p>
+<p>Inherited from <a href="SubPackageResolution.html">SubPackageResolution</a>.<a href="SubPackageResolution.html#resolveDependency">resolveDependency</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/import-resolution.ts#L58">resolution/import-resolution.ts:58</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/import-resolution.ts#L61">resolution/import-resolution.ts:61</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="resolveImport" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>resolve<wbr/>Import</span><a href="#resolveImport" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
-<li class="tsd-signature tsd-anchor-link" id="resolveImport.resolveImport-1"><span class="tsd-kind-call-signature">resolve<wbr/>Import</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">spec</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a><a href="#resolveImport.resolveImport-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="resolveImport.resolveImport-1"><span class="tsd-kind-call-signature">resolve<wbr/>Import</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">spec</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/Import-1.html" class="tsd-signature-type tsd-kind-type-alias">Import</a><span class="tsd-signature-symbol">&gt;</span><a href="#resolveImport.resolveImport-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Resolves another module imported by this one.</p>
 </div>
@@ -163,11 +186,11 @@
 <h5><span class="tsd-kind-parameter">spec</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../types/Import-1.html" class="tsd-signature-type tsd-kind-type-alias">Import</a></h5>
 <div class="tsd-comment tsd-typography"><p>Imported module specifier, either <a href="../functions/recognizeImport.html" class="tsd-kind-function">recognized</a> or not.</p>
 </div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a></h4><p>Imported module resolution.</p>
+<h4 class="tsd-returns-title">Returns <a href="ImportResolution.html" class="tsd-signature-type tsd-kind-interface">ImportResolution</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/Import-1.html" class="tsd-signature-type tsd-kind-type-alias">Import</a><span class="tsd-signature-symbol">&gt;</span></h4><p>Imported module resolution.</p>
 <aside class="tsd-sources">
-<p>Inherited from <a href="ImportResolution.html">ImportResolution</a>.<a href="ImportResolution.html#resolveImport">resolveImport</a></p>
+<p>Inherited from <a href="SubPackageResolution.html">SubPackageResolution</a>.<a href="SubPackageResolution.html#resolveImport">resolveImport</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/run-z/npk/blob/9efa831/src/resolution/import-resolution.ts#L49">resolution/import-resolution.ts:49</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/run-z/npk/blob/8e5892d/src/resolution/import-resolution.ts#L52">resolution/import-resolution.ts:52</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -187,12 +210,14 @@
 <div class="tsd-accordion-details">
 <ul>
 <li><a href="#host" class=""><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>host</span></a></li>
-<li><a href="#importSpec" class=""><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>import<wbr/>Spec</span></a></li>
+<li><a href="#importSpec" class="tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>import<wbr/>Spec</span></a></li>
 <li><a href="#packageInfo" class=""><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>package<wbr/>Info</span></a></li>
 <li><a href="#resolutionBaseURI" class="tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>resolution<wbr/>BaseURI</span></a></li>
 <li><a href="#root" class="tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>root</span></a></li>
+<li><a href="#subpath" class=""><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>subpath</span></a></li>
 <li><a href="#uri" class=""><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>uri</span></a></li>
 <li><a href="#asPackage" class=""><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>as<wbr/>Package</span></a></li>
+<li><a href="#asSubPackage" class="tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>as<wbr/>Sub<wbr/>Package</span></a></li>
 <li><a href="#resolveDependency" class="tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolve<wbr/>Dependency</span></a></li>
 <li><a href="#resolveImport" class="tsd-is-inherited"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>resolve<wbr/>Import</span></a></li></ul></div></details></div>
 <div class="site-menu">
@@ -203,14 +228,16 @@
 <div class="tsd-accordion-details">
 <ul class="tsd-nested-navigation">
 <li><a href="Import.Absolute.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-interface)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-256-path"></rect><path d="M9.51 16V15.016H11.298V8.224H9.51V7.24H14.19V8.224H12.402V15.016H14.19V16H9.51Z" fill="var(--color-text)" id="icon-256-text"></path></svg><span>Absolute</span></a></li>
+<li><a href="Import.Entry.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Entry</span></a></li>
 <li><a href="Import.Implied.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Implied</span></a></li>
 <li><a href="Import.Package.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Package</span></a></li>
+<li><a href="Import.Private.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Private</span></a></li>
 <li><a href="Import.Relative.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Relative</span></a></li>
-<li><a href="Import.Subpath.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Subpath</span></a></li>
 <li><a href="Import.Synthetic.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Synthetic</span></a></li>
 <li><a href="Import.URI.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>URI</span></a></li>
 <li><a href="Import.Unknown.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Unknown</span></a></li>
-<li><a href="../types/Import.Path.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-type-alias)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-4194304-path"></rect><path d="M11.31 16V8.224H8.91V7.24H14.79V8.224H12.39V16H11.31Z" fill="var(--color-text)" id="icon-4194304-text"></path></svg><span>Path</span></a></li></ul></div></details></li>
+<li><a href="../types/Import.Path.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-type-alias)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-4194304-path"></rect><path d="M11.31 16V8.224H8.91V7.24H14.79V8.224H12.39V16H11.31Z" fill="var(--color-text)" id="icon-4194304-text"></path></svg><span>Path</span></a></li>
+<li><a href="../types/Import.SubPackage.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Sub<wbr/>Package</span></a></li></ul></div></details></li>
 <li>
 <details class="tsd-index-accordion" data-key="PackageEntryPoint"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg><a href="../modules/PackageEntryPoint.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4-path"></use><use href="#icon-4-text"></use></svg><span>Package<wbr/>Entry<wbr/>Point</span></a></summary>
 <div class="tsd-accordion-details">
@@ -242,6 +269,7 @@
 <li><a href="ImportResolution.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Import<wbr/>Resolution</span></a></li>
 <li><a href="PackageJson-1.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Package<wbr/>Json</span></a></li>
 <li><a href="PackageResolution.html" class="current"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Package<wbr/>Resolution</span></a></li>
+<li><a href="SubPackageResolution.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Sub<wbr/>Package<wbr/>Resolution</span></a></li>
 <li><a href="../types/Import-1.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Import</span></a></li>
 <li><a href="../types/PackagePath.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Package<wbr/>Path</span></a></li>
 <li><a href="../functions/isValidPackageJson.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-function)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-64-path"></rect><path d="M9.39 16V7.24H14.55V8.224H10.446V11.128H14.238V12.112H10.47V16H9.39Z" fill="var(--color-text)" id="icon-64-text"></path></svg><span>is<wbr/>Valid<wbr/>Package<wbr/>Json</span></a></li>
