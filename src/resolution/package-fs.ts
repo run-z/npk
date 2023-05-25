@@ -57,7 +57,7 @@ export abstract class PackageFS {
    *
    * @returns URI of the resolved path.
    */
-  resolvePath(relativeTo: ImportResolution, path: string): string | URL {
+  resolvePath(relativeTo: ImportResolution, path: string): string {
     const resolution = new URL(path, relativeTo.resolutionBaseURI);
     const { pathname } = resolution;
 
@@ -66,7 +66,7 @@ export abstract class PackageFS {
       resolution.pathname = pathname.slice(0, -1);
     }
 
-    return resolution;
+    return resolution.href;
   }
 
   /**

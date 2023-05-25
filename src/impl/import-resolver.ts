@@ -3,8 +3,11 @@ import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageFS } from '../resolution/package-fs.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
+import { PackageEntry$Resolution } from './package-entry.resolution.js';
+import { PackageFile$Resolution } from './package-file.resolution.js';
+import { PackagePrivate$Resolution } from './package-private.resolution.js';
 import { Package$Resolution } from './package.resolution.js';
-import { Submodule$Resolution } from './submodule.resolution.js';
+import { ANY_RANGE } from './parse-range.js';
 import { Unknown$Resolution } from './unknown.resolution.js';
 import { uriToImport } from './uri-to-import.js';
 import { URI$Resolution } from './uri.resolution.js';
@@ -57,10 +60,11 @@ export class ImportResolver {
     switch (spec.kind) {
       case 'implied':
       case 'package':
+      case 'entry':
         return new Unknown$Resolution(this, `import:${spec.kind}:${spec.spec}`, spec);
       case 'path':
         return new Unknown$Resolution(this, `import:${spec.kind}:${spec.uri}`, spec);
-      case 'subpath':
+      case 'private':
         return new Unknown$Resolution(this, `import:${spec.kind}:${spec.spec.slice(1)}`, spec);
       case 'synthetic':
         return new Unknown$Resolution(
@@ -85,7 +89,7 @@ export class ImportResolver {
 
   resolveURI(
     spec: Import.URI,
-    createResolution?: () => ImportResolution | undefined,
+    createResolution?: (uri: string) => ImportResolution | undefined,
   ): ImportResolution {
     this.#init();
 
@@ -93,7 +97,7 @@ export class ImportResolver {
 
     return (
       this.byURI(uri)
-      ?? this.#addResolution(createResolution?.() ?? new URI$Resolution(this, spec), uri)
+      ?? this.#addResolution(createResolution?.(uri) ?? new URI$Resolution(this, spec), uri)
     );
   }
 
@@ -129,9 +133,45 @@ export class ImportResolver {
     return newPackage && this.#addResolution(newPackage);
   }
 
-  resolveModule(spec: Import.URI): ImportResolution | undefined {
+  resolvePrivate(host: PackageResolution, spec: Import.Private): ImportResolution {
+    return this.resolveURI(
+      uriToImport(PackagePrivate$Resolution.uri(host, spec)),
+      uri => new PackagePrivate$Resolution(this, host, uri, spec),
+    );
+  }
+
+  resolveEntry(
+    host: PackageResolution,
+    { name, subpath }: Import.Package | Import.Entry,
+  ): ImportResolution | undefined {
+    const dep = this.resolveName(name, ANY_RANGE, () => this.#resolveDepOf(host, name));
+
+    if (!dep || !subpath) {
+      return dep;
+    }
+
+    return this.resolveURI(
+      uriToImport(PackageEntry$Resolution.uri(this, dep, subpath)),
+      uri => new PackageEntry$Resolution(this, dep, uri, subpath),
+    );
+  }
+
+  #resolveDepOf(host: PackageResolution, depName: string): PackageResolution | undefined {
+    if (depName === host.packageInfo.name) {
+      return host; // Resolve to host package.
+    }
+
+    const entryPointURI = this.#fs.resolveName(host, depName);
+
+    return entryPointURI != null
+      ? this.resolveSubPackage(uriToImport(entryPointURI))?.host
+      : undefined;
+  }
+
+  resolveSubPackage(spec: Import.URI): ImportResolution {
     return this.resolveURI(spec, () => {
-      const packageDir = this.fs.findPackageDir(spec.spec);
+      const { spec: uri } = spec;
+      const packageDir = this.#fs.findPackageDir(uri);
 
       if (!packageDir) {
         return;
@@ -139,14 +179,17 @@ export class ImportResolver {
 
       const pkg = this.#resolvePackageByDir(packageDir);
 
-      if (packageDir.uri === spec.spec) {
-        // Package imported directly, rather its submodule.
+      if (packageDir.uri === uri) {
+        // Package imported directly, rather its subpath.
         return pkg;
       }
 
       const { host } = pkg;
 
-      return host && new Submodule$Resolution(this, spec, host);
+      return (
+        host
+        && new PackageFile$Resolution(this, host, `./${uri.slice(host.resolutionBaseURI.length)}`)
+      );
     });
   }
 

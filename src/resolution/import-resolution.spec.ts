@@ -83,8 +83,8 @@ describe('ImportResolution', () => {
       it('resolves package as unknown import', () => {
         expect(resolution.resolveImport('@test/test').uri).toBe('import:package:@test/test');
       });
-      it('resolves subpath as unknown import', () => {
-        expect(resolution.resolveImport('#test').uri).toBe('import:subpath:test');
+      it('resolves private as unknown import', () => {
+        expect(resolution.resolveImport('#test').uri).toBe('import:private:test');
       });
       it('resolves synthetic spec as unknown import', () => {
         expect(resolution.resolveImport('\0test').uri).toBe('import:synthetic:test');

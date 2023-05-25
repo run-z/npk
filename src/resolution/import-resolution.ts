@@ -1,13 +1,16 @@
 import { DependencyResolution } from './dependency-resolution.js';
 import { Import } from './import.js';
 import { PackageResolution } from './package-resolution.js';
+import { SubPackageResolution } from './sub-package-resolution.js';
 
 /**
  * Imported module resolution.
  *
  * May represent imported package, virtual Rollup module, some import URI, or anything else.
+ *
+ * @typeParam TImport - Type of import specifier.
  */
-export interface ImportResolution {
+export interface ImportResolution<out TImport extends Import = Import> {
   /**
    * Root module resolution.
    *
@@ -18,14 +21,14 @@ export interface ImportResolution {
   /**
    * Host package resolution.
    *
-   * Set e.g. for package sub-module resolutions.
+   * Only defined for {@link PackageResolution packages} and {@link SubPackageResolution sub-packages}.
    */
   get host(): PackageResolution | undefined;
 
   /**
    * Resolved import specifier.
    */
-  get importSpec(): Import;
+  get importSpec(): TImport;
 
   /**
    * Unique URI of imported module.
@@ -35,7 +38,7 @@ export interface ImportResolution {
   /**
    * URI used as {@link PackageFS#resolvePath path resolution} base.
    *
-   * Defaults to {@link uri}. But may a directory URI instead.
+   * Defaults to {@link uri}. But may be a directory URI instead.
    */
   get resolutionBaseURI(): string;
 
@@ -63,4 +66,11 @@ export interface ImportResolution {
    * @returns `this` instance for package resolution, or `undefined` otherwise.
    */
   asPackage(): PackageResolution | undefined;
+
+  /**
+   * Represents this module resolution as sub-package resolution, if possible.
+   *
+   * @returns `this` instance for sub-package or package resolution, or `undefined` otherwise.
+   */
+  asSubPackage(): SubPackageResolution | undefined;
 }

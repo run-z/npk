@@ -2,9 +2,11 @@ import { DependencyResolution } from '../resolution/dependency-resolution.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
+import { SubPackageResolution } from '../resolution/sub-package-resolution.js';
 import { ImportResolver } from './import-resolver.js';
 
-export abstract class Import$Resolution<TImport extends Import> implements ImportResolution {
+export abstract class Import$Resolution<TImport extends Import>
+  implements ImportResolution<TImport> {
 
   readonly #resolver: ImportResolver;
   readonly #uri: string;
@@ -80,6 +82,10 @@ export abstract class Import$Resolution<TImport extends Import> implements Impor
   }
 
   asPackage(): PackageResolution | undefined {
+    return;
+  }
+
+  asSubPackage(): SubPackageResolution | undefined {
     return;
   }
 

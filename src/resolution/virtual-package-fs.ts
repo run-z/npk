@@ -150,8 +150,8 @@ export class VirtualPackageFS extends PackageFS {
     return this.#toPackageURI(parentURL);
   }
 
-  override resolvePath(relativeTo: PackageResolution, path: string): string | URL {
-    return this.#toPackageURI(new URL(path, this.#toHttpURL(relativeTo.uri)));
+  override resolvePath(relativeTo: PackageResolution, path: string): string {
+    return this.#toPackageURI(new URL(path, this.#toHttpURL(relativeTo.resolutionBaseURI)));
   }
 
   override resolveName(relativeTo: PackageResolution, name: string): string | undefined {
@@ -204,7 +204,7 @@ export class VirtualPackageFS extends PackageFS {
   #toHttpURL(uri: string): URL {
     const pathname = new URL(uri).pathname;
 
-    return new URL(pathname.startsWith('/') ? pathname : `/${pathname}`, 'file:///');
+    return new URL(pathname.startsWith('/') ? pathname : `/${pathname}`, 'http://localhost/');
   }
 
 }

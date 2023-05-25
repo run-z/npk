@@ -2,15 +2,16 @@ import { type PackageInfo } from '../package-info.js';
 import { type PackageJson } from '../package.json.js';
 import { DependencyResolution } from '../resolution/dependency-resolution.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
-import { Import, recognizeImport } from '../resolution/import.js';
+import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
+import { recognizeImport } from '../resolution/recognize-import.js';
 import { dirURI } from './dir-uri.js';
 import { ImportResolver } from './import-resolver.js';
-import { Module$Resolution } from './module.resolution.js';
 import { parseRange } from './parse-range.js';
+import { SubPackage$Resolution } from './sub-package.resolution.js';
 
 export class Package$Resolution
-  extends Module$Resolution<Import.Package>
+  extends SubPackage$Resolution<Import.Package>
   implements PackageResolution {
 
   readonly #resolver: ImportResolver;
@@ -34,6 +35,10 @@ export class Package$Resolution
 
   override get host(): this {
     return this;
+  }
+
+  override get subpath(): '' {
+    return '';
   }
 
   override get resolutionBaseURI(): string {

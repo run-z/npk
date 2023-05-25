@@ -106,12 +106,20 @@ describe('PackageResolution', () => {
     it('resolves itself by directory URI', () => {
       expect(root.resolveImport(root.resolutionBaseURI)).toBe(root);
     });
-    it('resolves submodule', () => {
+    it('resolves package file', () => {
       const uri = root.uri + '/test/submodule';
-      const submodule = root.resolveImport(uri);
+      const entry = root.resolveImport(uri).asSubPackage()!;
 
-      expect(submodule.uri).toBe(uri);
-      expect(submodule.host).toBe(root);
+      expect(entry.importSpec).toEqual({
+        kind: 'path',
+        spec: './test/submodule',
+        isRelative: true,
+        path: './test/submodule',
+        uri: './test/submodule',
+      });
+      expect(entry.subpath).toBe('/test/submodule');
+      expect(entry.uri).toBe(uri);
+      expect(entry.host).toBe(root);
     });
     it('resolves URI import', () => {
       const uri = 'http://localhost/pkg/target';
@@ -149,7 +157,7 @@ describe('PackageResolution', () => {
     it('resolves package by path', () => {
       fs.addPackage('package:root/dep', { name: 'dependency', version: '1.0.0' });
 
-      const found = root.resolveImport('./root/dep');
+      const found = root.resolveImport('./dep');
 
       expect(found.uri).toBe('package:root/dep');
       expect(found.importSpec.kind).toBe('package');
