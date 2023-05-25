@@ -35,6 +35,23 @@ export class VirtualPackageFS extends PackageFS {
   }
 
   /**
+   * Registers root virtual package.
+   *
+   * Replaces existing root package.
+   *
+   * Replaces package with the same name and version, unless `allowDuplicate` parameter is set.
+   *
+   * @param uri - Package URI.
+   * @param packageJson - `package.json` contents.
+   * @param allowDuplicate - Permit package with the same name. `false` by default.
+   *
+   * @returns `this` instance.
+   */
+  addRoot(packageJson: PackageJson | PackageInfo, allowDuplicate?: boolean): this {
+    return this.addPackage(this.root, packageJson, allowDuplicate);
+  }
+
+  /**
    * Registers virtual package with automatically generated URI.
    *
    * Replaces package under the same URI.
@@ -58,6 +75,7 @@ export class VirtualPackageFS extends PackageFS {
    *
    * @param uri - Package URI.
    * @param packageJson - `package.json` contents.
+   * @param allowDuplicate - Permit package with the same name. `false` by default.
    *
    * @returns `this` instance.
    */
