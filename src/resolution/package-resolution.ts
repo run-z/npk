@@ -5,13 +5,14 @@ import { ImportResolution } from './import-resolution.js';
 import { Import } from './import.js';
 import { NodePackageFS } from './node-package-fs.js';
 import { PackageFS } from './package-fs.js';
+import { SubPackageResolution } from './sub-package-resolution.js';
 
 /**
  * Imported NodeJS package {@link ImportResolution resolution}.
  *
  * The package is a directory with `package.json` file.
  */
-export interface PackageResolution extends ImportResolution {
+export interface PackageResolution extends SubPackageResolution<Import.Package> {
   /**
    * The package is always a host of itself.
    */
@@ -22,13 +23,19 @@ export interface PackageResolution extends ImportResolution {
    */
   get uri(): string;
 
-  get importSpec(): Import.Package;
-
   /**
    * Information on resolved package.
    */
   get packageInfo(): PackageInfo;
 
+  /**
+   * Always empty path.
+   */
+  get subpath(): '';
+
+  /**
+   * Always returns itself.
+   */
   asPackage(): this;
 }
 

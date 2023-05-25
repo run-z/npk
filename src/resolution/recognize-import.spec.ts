@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { win32 } from 'node:path/win32';
-import { Import, recognizeImport } from './import.js';
+import { Import } from './import.js';
+import { recognizeImport } from './recognize-import.js';
 
 describe('recognizeImport', () => {
   it('does not alter recognized import', () => {
@@ -69,18 +70,6 @@ describe('recognizeImport', () => {
         local: 'test-package',
       });
     });
-    it('recognizes subpath of scoped package', () => {
-      const spec = '@test-scope/test-package/some/path';
-
-      expect(recognizeImport(spec)).toEqual({
-        kind: 'package',
-        spec,
-        name: '@test-scope/test-package',
-        scope: '@test-scope',
-        local: 'test-package',
-        subpath: '/some/path',
-      });
-    });
     it('recognizes unscoped package', () => {
       const spec = 'test-package';
 
@@ -91,21 +80,46 @@ describe('recognizeImport', () => {
         local: 'test-package',
       });
     });
-    it('recognizes subpath of unscoped package', () => {
-      const spec = 'test-package/some/path';
+    it('recognizes package ending with slash', () => {
+      const spec = 'test-package/';
 
       expect(recognizeImport(spec)).toEqual({
         kind: 'package',
-        spec,
+        spec: 'test-package',
         name: 'test-package',
         local: 'test-package',
-        subpath: '/some/path',
       });
     });
     it('does not recognize wrong package name', () => {
       expect(recognizeImport('@test')).toEqual({ kind: 'unknown', spec: '@test' });
       expect(recognizeImport('_test')).toEqual({ kind: 'unknown', spec: '_test' });
       expect(recognizeImport('.test')).toEqual({ kind: 'unknown', spec: '.test' });
+    });
+  });
+
+  describe('package entry imports', () => {
+    it('recognizes entry of scoped package', () => {
+      const spec = '@test-scope/test-package/some/path';
+
+      expect(recognizeImport(spec)).toEqual({
+        kind: 'entry',
+        spec,
+        name: '@test-scope/test-package',
+        scope: '@test-scope',
+        local: 'test-package',
+        subpath: '/some/path',
+      });
+    });
+    it('recognizes entry of unscoped package', () => {
+      const spec = 'test-package/some/path';
+
+      expect(recognizeImport(spec)).toEqual({
+        kind: 'entry',
+        spec,
+        name: 'test-package',
+        local: 'test-package',
+        subpath: '/some/path',
+      });
     });
   });
 
@@ -247,11 +261,11 @@ describe('recognizeImport', () => {
       spec,
     });
   });
-  it('recognizes subpath', () => {
+  it('recognizes private import', () => {
     const spec = '#/internal';
 
     expect(recognizeImport(spec)).toEqual({
-      kind: 'subpath',
+      kind: 'private',
       spec,
     });
   });

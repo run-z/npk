@@ -4,9 +4,10 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { FS_ROOT } from '../impl/fs-root.js';
 import { ImportResolution } from './import-resolution.js';
-import { Import, recognizeImport } from './import.js';
+import { Import } from './import.js';
 import { NodePackageFS } from './node-package-fs.js';
 import { PackageResolution, resolveRootPackage } from './package-resolution.js';
+import { recognizeImport } from './recognize-import.js';
 
 describe('NodePackageFS', () => {
   let fs: NodePackageFS;
@@ -88,26 +89,42 @@ describe('NodePackageFS', () => {
       expect(depImport.importSpec.kind).toBe('package');
       expect(root.resolveDependency(depImport)).toEqual({ kind: 'dev' });
     });
-    it('resolves file URI', () => {
+    it('resolves package file by URI', () => {
       const req = createRequire(import.meta.url);
-      const url = pathToFileURL(req.resolve('typescript')).href;
-      const urlImport = root.resolveImport(url);
+      const uri = pathToFileURL(req.resolve('typescript')).href;
+      const path = './' + /\/node_modules\/typescript\/(.*)$/.exec(uri)![1];
+      const fileImport = root.resolveImport(uri).asSubPackage()!;
 
-      expect(urlImport.importSpec.kind).toBe('uri');
-      expect(root.resolveDependency(urlImport)).toEqual({ kind: 'dev' });
+      expect(fileImport.importSpec).toEqual({
+        kind: 'path',
+        spec: path,
+        isRelative: true,
+        path: path,
+        uri: path,
+      });
+      expect(fileImport.subpath).toBe(path.slice(1));
+      expect(root.resolveDependency(fileImport)).toEqual({ kind: 'dev' });
 
       const depImport = root.resolveImport('typescript');
 
       expect(depImport.importSpec.kind).toBe('package');
       expect(root.resolveDependency(depImport)).toEqual({ kind: 'dev' });
     });
-    it('resolves package dir URI', () => {
+    it('resolves package by URI', () => {
       const req = createRequire(import.meta.url);
-      const url = pathToFileURL(path.dirname(req.resolve('typescript'))).href;
-      const urlImport = root.resolveImport(url);
+      const uri = pathToFileURL(req.resolve('typescript')).href;
+      const dir = /(.*\/node_modules\/typescript\/).*$/.exec(uri)![1];
+      const packageImport = root.resolveImport(dir).asPackage()!;
 
-      expect(urlImport.importSpec.kind).toBe('uri');
-      expect(root.resolveDependency(urlImport)).toEqual({ kind: 'dev' });
+      expect(packageImport.importSpec).toEqual({
+        kind: 'package',
+        spec: 'typescript',
+        name: 'typescript',
+        local: 'typescript',
+      });
+      expect(packageImport.subpath).toBe('');
+      expect(packageImport.uri).toBe(dir);
+      expect(root.resolveDependency(packageImport)).toEqual({ kind: 'dev' });
     });
     it('does not resolve non-file URL', () => {
       const urlImport = root.resolveImport('http://localhost/pkg/test');
@@ -118,20 +135,34 @@ describe('NodePackageFS', () => {
     it('does not resolve missing dependency', () => {
       const wrongImport = root.resolveImport('@run-z/wrong/subpath');
 
-      expect(wrongImport.importSpec.kind).toBe('package');
+      expect(wrongImport.importSpec.kind).toBe('entry');
       expect(root.resolveDependency(wrongImport)).toBeNull();
     });
     it('resolves sub-directory dependency', () => {
-      const dirImport = root.resolveImport('./src');
+      const dirImport = root.resolveImport('./src').asSubPackage()!;
 
-      expect(dirImport.importSpec.kind).toBe('uri');
+      expect(dirImport.importSpec).toEqual({
+        kind: 'path',
+        spec: './src',
+        isRelative: true,
+        path: './src',
+        uri: './src',
+      });
+      expect(dirImport.subpath).toBe('/src');
       expect(root.resolveDependency(dirImport)).toEqual({ kind: 'self' });
       expect(dirImport.host).toBe(root);
     });
     it('resolves sub-directory dependency with trailing slash', () => {
-      const dirImport = root.resolveImport('./src/');
+      const dirImport = root.resolveImport('./src/').asSubPackage()!;
 
-      expect(dirImport.importSpec.kind).toBe('uri');
+      expect(dirImport.importSpec).toEqual({
+        kind: 'path',
+        spec: './src/',
+        isRelative: true,
+        path: './src/',
+        uri: './src/',
+      });
+      expect(dirImport.subpath).toBe('/src/');
       expect(root.resolveDependency(dirImport)).toEqual({ kind: 'self' });
       expect(dirImport.host).toBe(root);
     });

@@ -35,6 +35,23 @@ export class VirtualPackageFS extends PackageFS {
   }
 
   /**
+   * Registers root virtual package.
+   *
+   * Replaces existing root package.
+   *
+   * Replaces package with the same name and version, unless `allowDuplicate` parameter is set.
+   *
+   * @param uri - Package URI.
+   * @param packageJson - `package.json` contents.
+   * @param allowDuplicate - Permit package with the same name. `false` by default.
+   *
+   * @returns `this` instance.
+   */
+  addRoot(packageJson: PackageJson | PackageInfo, allowDuplicate?: boolean): this {
+    return this.addPackage(this.root, packageJson, allowDuplicate);
+  }
+
+  /**
    * Registers virtual package with automatically generated URI.
    *
    * Replaces package under the same URI.
@@ -58,6 +75,7 @@ export class VirtualPackageFS extends PackageFS {
    *
    * @param uri - Package URI.
    * @param packageJson - `package.json` contents.
+   * @param allowDuplicate - Permit package with the same name. `false` by default.
    *
    * @returns `this` instance.
    */
@@ -150,8 +168,8 @@ export class VirtualPackageFS extends PackageFS {
     return this.#toPackageURI(parentURL);
   }
 
-  override resolvePath(relativeTo: PackageResolution, path: string): string | URL {
-    return this.#toPackageURI(new URL(path, this.#toHttpURL(relativeTo.uri)));
+  override resolvePath(relativeTo: PackageResolution, path: string): string {
+    return this.#toPackageURI(new URL(path, this.#toHttpURL(relativeTo.resolutionBaseURI)));
   }
 
   override resolveName(relativeTo: PackageResolution, name: string): string | undefined {
@@ -204,7 +222,7 @@ export class VirtualPackageFS extends PackageFS {
   #toHttpURL(uri: string): URL {
     const pathname = new URL(uri).pathname;
 
-    return new URL(pathname.startsWith('/') ? pathname : `/${pathname}`, 'file:///');
+    return new URL(pathname.startsWith('/') ? pathname : `/${pathname}`, 'http://localhost/');
   }
 
 }

@@ -1,5 +1,6 @@
 import { ImportResolution } from '../resolution/import-resolution.js';
-import { Import, recognizeImport } from '../resolution/import.js';
+import { Import } from '../resolution/import.js';
+import { recognizeImport } from '../resolution/recognize-import.js';
 import { ImportResolver } from './import-resolver.js';
 import { Import$Resolution } from './import.resolution.js';
 
