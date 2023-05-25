@@ -121,6 +121,46 @@ describe('PackageResolution', () => {
       expect(entry.uri).toBe(uri);
       expect(entry.host).toBe(root);
     });
+    it('resolves private import', () => {
+      const spec = '#private/path';
+      const entry = root.resolveImport(spec).asSubPackage()!;
+
+      expect(entry.importSpec).toEqual({
+        kind: 'private',
+        spec,
+      });
+      expect(entry.uri).toBe(root.uri + `?private=${encodeURIComponent(spec.slice(1))}`);
+      expect(entry.subpath).toBe(spec);
+      expect(entry.host).toBe(root);
+    });
+    it('resolves package entry', () => {
+      fs.addRoot({ name: 'root', version: '1.0.0', dependencies: { dep: '^1.0.0' } });
+      fs.addPackage('package:dep', { name: 'dep', version: '1.0.0' });
+
+      const spec = 'dep/submodule';
+      const entry = root.resolveImport(spec).asSubPackage()!;
+
+      expect(entry.importSpec).toEqual({
+        kind: 'entry',
+        spec,
+        name: 'dep',
+        local: 'dep',
+        subpath: '/submodule',
+      });
+      expect(entry.subpath).toBe('/submodule');
+      expect(entry.uri).toBe('package:dep/submodule');
+
+      const { host } = entry;
+
+      expect(host).toBe(root.resolveImport('dep'));
+      expect(host.importSpec).toEqual({
+        kind: 'package',
+        spec: 'dep',
+        name: 'dep',
+        local: 'dep',
+      });
+      expect(host.uri).toBe('package:dep');
+    });
     it('resolves URI import', () => {
       const uri = 'http://localhost/pkg/target';
       const found = root.resolveImport(uri);
@@ -132,6 +172,7 @@ describe('PackageResolution', () => {
         scheme: 'http',
         path: '/pkg/target',
       });
+      expect(found.host).toBeUndefined();
     });
     it('resolves path import', () => {
       const path = '../pkg/target';
@@ -190,12 +231,12 @@ describe('PackageResolution', () => {
     it('resolves self-dependency', () => {
       expect(root.resolveDependency(root)).toEqual({ kind: 'self' });
     });
-    it('resolves dependency on submodule', () => {
+    it('resolves dependency on package entry', () => {
       expect(root.resolveDependency(root.resolveImport(root.uri + '/test/submodule'))).toEqual({
         kind: 'self',
       });
     });
-    it('resolves submodule dependency on another package submodule', () => {
+    it('resolves package entry dependency on another package entry', () => {
       fs.addPackage('package:test', {
         name: 'test',
         version: '1.0.0',

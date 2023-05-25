@@ -27,9 +27,15 @@ describe('ImportResolution', () => {
       });
     });
 
-    describe('asPackageResolution', () => {
+    describe('asPackage', () => {
       it('returns none', () => {
         expect(resolution.asPackage()).toBeUndefined();
+      });
+    });
+
+    describe('asSubPackage', () => {
+      it('returns none', () => {
+        expect(resolution.asSubPackage()).toBeUndefined();
       });
     });
 
