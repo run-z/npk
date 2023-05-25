@@ -11,6 +11,8 @@ import { PackageResolution } from './package-resolution.js';
  * - private [subpath import], or
  * - packaged file.
  *
+ * @typeParam TImport - Type of sub-package import specifier.
+ *
  * [entry point]: https://nodejs.org/dist/latest/docs/api/packages.html#subpath-exports
  * [subpath import]: https://nodejs.org/dist/latest/docs/api/packages.html#subpath-imports
  */

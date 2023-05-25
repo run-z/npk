@@ -18,9 +18,12 @@ export class PackageEntry$Resolution extends SubPackage$Resolution<Import.Entry>
     uri: string,
     subpath: `/${string}`,
   ) {
+    const { importSpec } = host;
+
     super(resolver, uri, {
-      ...host.importSpec,
+      ...importSpec,
       kind: 'entry',
+      spec: importSpec.spec + subpath,
       subpath,
     });
 
