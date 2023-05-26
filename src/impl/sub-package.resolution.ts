@@ -13,7 +13,7 @@ export abstract class SubPackage$Resolution<TImport extends Import.SubPackage>
 
   readonly #resolver: ImportResolver;
 
-  constructor(resolver: ImportResolver, uri: string, importSpec: TImport | (() => TImport)) {
+  constructor(resolver: ImportResolver, uri: string, importSpec: TImport) {
     super(resolver, uri, importSpec);
 
     this.#resolver = resolver;

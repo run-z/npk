@@ -10,22 +10,12 @@ export abstract class Import$Resolution<TImport extends Import>
 
   readonly #resolver: ImportResolver;
   readonly #uri: string;
-  #getImportSpec: () => TImport;
+  readonly #importSpec: TImport;
 
-  constructor(resolver: ImportResolver, uri: string, importSpec: TImport | (() => TImport)) {
+  constructor(resolver: ImportResolver, uri: string, importSpec: TImport) {
     this.#resolver = resolver;
     this.#uri = uri;
-    if (typeof importSpec === 'function') {
-      this.#getImportSpec = () => {
-        const spec = importSpec();
-
-        this.#getImportSpec = () => spec;
-
-        return spec;
-      };
-    } else {
-      this.#getImportSpec = () => importSpec;
-    }
+    this.#importSpec = importSpec;
   }
 
   get root(): ImportResolution {
@@ -45,7 +35,7 @@ export abstract class Import$Resolution<TImport extends Import>
   }
 
   get importSpec(): TImport {
-    return this.#getImportSpec();
+    return this.#importSpec;
   }
 
   abstract resolveImport(spec: Import | string): ImportResolution;

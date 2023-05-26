@@ -14,23 +14,21 @@ export class Package$Resolution
   extends SubPackage$Resolution<Import.Package>
   implements PackageResolution {
 
-  readonly #resolver: ImportResolver;
   readonly #resolutionBaseURI: string;
-  #packageInfo: PackageInfo | undefined;
+  readonly #packageInfo: PackageInfo;
   readonly #dependencies = new Map<string, PackageDep | false>();
   #peerDependencies?: PackageJson.Dependencies;
 
   constructor(
     resolver: ImportResolver,
     uri: string,
-    importSpec?: Import.Package,
-    packageInfo?: PackageInfo,
+    packageInfo: PackageInfo,
+    importSpec: Import.Package = packageImportSpec(packageInfo),
   ) {
-    super(resolver, uri, importSpec ?? (() => packageImportSpec(this)));
+    super(resolver, uri, importSpec);
 
-    this.#resolver = resolver;
-    this.#resolutionBaseURI = dirURI(uri);
     this.#packageInfo = packageInfo;
+    this.#resolutionBaseURI = dirURI(uri);
   }
 
   override get host(): this {
@@ -46,14 +44,6 @@ export class Package$Resolution
   }
 
   get packageInfo(): PackageInfo {
-    if (!this.#packageInfo) {
-      this.#packageInfo = this.#resolver.fs.loadPackage(this.uri);
-
-      if (!this.#packageInfo) {
-        throw new ReferenceError(`No "package.json" file found at <${this.uri}>`);
-      }
-    }
-
     return this.#packageInfo;
   }
 
@@ -143,9 +133,7 @@ export class Package$Resolution
 
 }
 
-function packageImportSpec({
-  packageInfo: { name, scope, localName },
-}: PackageResolution): Import.Package {
+function packageImportSpec({ name, scope, localName }: PackageInfo): Import.Package {
   const spec = recognizeImport(name);
 
   if (spec.kind === 'package') {

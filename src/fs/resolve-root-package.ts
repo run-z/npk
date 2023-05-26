@@ -12,14 +12,22 @@ import { PackageFS } from './package-fs.js';
  * @param dirOrFS - Either path to package directory, or {@link PackageFS package file system} instance. Defaults
  * to current working directory.
  *
- * @returns Package resolution.
+ * @returns Promise resolved to package resolution.
  */
 
-export function resolveRootPackage(dirOrFS?: string | PackageFS): PackageResolution {
+export async function resolveRootPackage(dirOrFS?: string | PackageFS): Promise<PackageResolution> {
   const fs = dirOrFS == null || typeof dirOrFS === 'string' ? new NodePackageFS(dirOrFS) : dirOrFS;
 
-  return new ImportResolver({
-    createRoot: resolver => new Package$Resolution(resolver, fs.root),
-    fs,
-  }).root.asPackage()!;
+  const rootPackageInfo = fs.loadPackage(fs.root);
+
+  if (!rootPackageInfo) {
+    throw new ReferenceError(`No "package.json" file found at <${fs.root}>`);
+  }
+
+  return Promise.resolve(
+    new ImportResolver({
+      createRoot: resolver => new Package$Resolution(resolver, fs.root, rootPackageInfo),
+      fs,
+    }).root.asPackage()!,
+  );
 }

@@ -197,7 +197,7 @@ export class ImportResolver {
   #resolvePackageByDir({ uri, packageInfo }: PackageDir): ImportResolution {
     return this.resolveURI(
       uriToImport(new URL(uri)),
-      () => new Package$Resolution(this, uri, undefined, packageInfo),
+      () => new Package$Resolution(this, uri, packageInfo),
     );
   }
 

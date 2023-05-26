@@ -7,15 +7,16 @@ describe('VirtualPackageFS', () => {
   let fs: VirtualPackageFS;
   let root: PackageResolution;
 
-  beforeEach(() => {
-    fs = new VirtualPackageFS();
-    root = resolveRootPackage(fs);
+  beforeEach(async () => {
+    fs = new VirtualPackageFS().addRoot({ name: 'root', version: '1.0.0' });
+    root = await resolveRootPackage(fs);
   });
 
   describe('addPackage', () => {
-    it('replaces named package with the same version', () => {
-      fs.addPackage(root.uri, { name: 'root', version: '1.0.0', dependencies: { test: '1.0.0' } });
+    it('replaces named package with the same version', async () => {
+      fs.addRoot({ name: 'root', version: '1.0.0', dependencies: { test: '1.0.0' } });
       fs.addPackage('package:test', { name: 'test', version: '1.0.0' });
+      root = await resolveRootPackage(fs);
 
       expect(fs.resolveName(root, 'test')).toBe('package:test');
 
@@ -23,13 +24,14 @@ describe('VirtualPackageFS', () => {
 
       expect(fs.resolveName(root, 'test')).toBe('package:test@biz');
     });
-    it('replaces package at the same URI', () => {
-      fs.addPackage(root.uri, {
+    it('replaces package at the same URI', async () => {
+      fs.addRoot({
         name: 'root',
         version: '1.0.0',
         dependencies: { test: '1.0.0', test2: '1.0.0' },
       });
       fs.addPackage('package:test', { name: 'test', version: '1.0.0' });
+      root = await resolveRootPackage(fs);
 
       expect(fs.resolveName(root, 'test')).toBe('package:test');
 

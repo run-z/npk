@@ -55,8 +55,8 @@ describe('NodePackageFS', () => {
   describe('resolution', () => {
     let root: PackageResolution;
 
-    beforeEach(() => {
-      root = resolveRootPackage(fs);
+    beforeEach(async () => {
+      root = await resolveRootPackage(fs);
     });
 
     it('resolves package self-reference', () => {
@@ -172,8 +172,8 @@ describe('NodePackageFS', () => {
   describe('unknown resolution', () => {
     let resolution: ImportResolution;
 
-    beforeEach(() => {
-      const root = resolveRootPackage(fs);
+    beforeEach(async () => {
+      const root = await resolveRootPackage(fs);
 
       resolution = root.resolveImport('\0synthetic');
     });

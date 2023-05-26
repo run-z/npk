@@ -1,18 +1,17 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import { resolveRootPackage } from '../fs/resolve-root-package.js';
+import { VirtualPackageFS } from '../fs/virtual-package-fs.js';
 import { ImportResolution } from './import-resolution.js';
 import { PackageResolution } from './package-resolution.js';
-import { VirtualPackageFS } from '../fs/virtual-package-fs.js';
 
 describe('ImportResolution', () => {
   let fs: VirtualPackageFS;
   let root: PackageResolution;
 
-  beforeEach(() => {
-    fs = new VirtualPackageFS();
-    fs.addPackage(fs.root, { name: '@test-scope/root-package', version: '1.0.0' });
+  beforeEach(async () => {
+    fs = new VirtualPackageFS().addRoot({ name: '@test-scope/root-package', version: '1.0.0' });
 
-    root = resolveRootPackage(fs);
+    root = await resolveRootPackage(fs);
   });
 
   describe('for URI import', () => {
