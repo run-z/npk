@@ -1,4 +1,4 @@
-import { PackageInfo } from '../package-info.js';
+import { PackageInfo } from '../package/package-info.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';

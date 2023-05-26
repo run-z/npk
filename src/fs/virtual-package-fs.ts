@@ -1,6 +1,6 @@
 import { parseRange } from '../impl/parse-range.js';
-import { PackageInfo } from '../package-info.js';
-import { PackageJson } from '../package.json.js';
+import { PackageInfo } from '../package/package-info.js';
+import { PackageJson } from '../package/package.json.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
 import { PackageDir } from './package-dir.js';

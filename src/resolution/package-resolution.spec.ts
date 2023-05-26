@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import { resolveRootPackage } from '../fs/resolve-root-package.js';
 import { VirtualPackageFS } from '../fs/virtual-package-fs.js';
-import { PackageInfo } from '../package-info.js';
+import { PackageInfo } from '../package/package-info.js';
 import { PackageResolution } from './package-resolution.js';
 
 describe('PackageResolution', () => {

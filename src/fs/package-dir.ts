@@ -1,4 +1,4 @@
-import { PackageInfo } from '../package-info.js';
+import { PackageInfo } from '../package/package-info.js';
 
 /**
  * Package directory representation.
