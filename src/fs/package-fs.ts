@@ -1,7 +1,8 @@
 import { PackageInfo } from '../package-info.js';
-import { ImportResolution } from './import-resolution.js';
-import { Import } from './import.js';
-import { PackageResolution } from './package-resolution.js';
+import { ImportResolution } from '../resolution/import-resolution.js';
+import { Import } from '../resolution/import.js';
+import { PackageResolution } from '../resolution/package-resolution.js';
+import { PackageDir } from './package-dir.js';
 
 /**
  * Virtual file system to work with packages.
@@ -89,7 +90,7 @@ export abstract class PackageFS {
    *
    * @returns Either enclosing package directory, or `undefined` if not found.
    */
-  findPackageDir(uri: string): PackageFS.PackageDir | undefined {
+  findPackageDir(uri: string): PackageDir | undefined {
     for (;;) {
       const packageInfo = this.loadPackage(uri);
 
@@ -113,23 +114,4 @@ export abstract class PackageFS {
     }
   }
 
-}
-
-export namespace PackageFS {
-  /**
-   * Package directory representation.
-   *
-   * Such directory contains valid `package.json` file.
-   */
-  export interface PackageDir {
-    /**
-     * Directory URI.
-     */
-    readonly uri: string;
-
-    /**
-     * Information on package the directory contains.
-     */
-    readonly packageInfo: PackageInfo;
-  }
 }

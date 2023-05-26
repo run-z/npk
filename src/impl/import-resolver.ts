@@ -1,7 +1,8 @@
 import semver from 'semver';
+import { PackageDir } from '../fs/package-dir.js';
+import { PackageFS } from '../fs/package-fs.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
-import { PackageFS } from '../resolution/package-fs.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
 import { PackageEntry$Resolution } from './package-entry.resolution.js';
 import { PackageFile$Resolution } from './package-file.resolution.js';
@@ -193,7 +194,7 @@ export class ImportResolver {
     });
   }
 
-  #resolvePackageByDir({ uri, packageInfo }: PackageFS.PackageDir): ImportResolution {
+  #resolvePackageByDir({ uri, packageInfo }: PackageDir): ImportResolution {
     return this.resolveURI(
       uriToImport(new URL(uri)),
       () => new Package$Resolution(this, uri, undefined, packageInfo),

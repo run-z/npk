@@ -3,11 +3,12 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { FS_ROOT } from '../impl/fs-root.js';
-import { ImportResolution } from './import-resolution.js';
-import { Import } from './import.js';
+import { ImportResolution } from '../resolution/import-resolution.js';
+import { Import } from '../resolution/import.js';
+import { PackageResolution } from '../resolution/package-resolution.js';
+import { recognizeImport } from '../resolution/recognize-import.js';
 import { NodePackageFS } from './node-package-fs.js';
-import { PackageResolution, resolveRootPackage } from './package-resolution.js';
-import { recognizeImport } from './recognize-import.js';
+import { resolveRootPackage } from './resolve-root-package.js';
 
 describe('NodePackageFS', () => {
   let fs: NodePackageFS;

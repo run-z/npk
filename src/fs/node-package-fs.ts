@@ -5,9 +5,9 @@ import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PackageInfo } from '../package-info.js';
 import { PackageJson, isValidPackageJson } from '../package.json.js';
-import { Import } from './import.js';
 import { PackageFS } from './package-fs.js';
-import { PackageResolution } from './package-resolution.js';
+import { Import } from '../resolution/import.js';
+import { PackageResolution } from '../resolution/package-resolution.js';
 
 /**
  * Node.js-specific implementation of package file system.

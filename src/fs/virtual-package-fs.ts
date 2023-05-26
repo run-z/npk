@@ -1,9 +1,10 @@
 import { parseRange } from '../impl/parse-range.js';
 import { PackageInfo } from '../package-info.js';
 import { PackageJson } from '../package.json.js';
-import { Import } from './import.js';
+import { Import } from '../resolution/import.js';
+import { PackageResolution } from '../resolution/package-resolution.js';
+import { PackageDir } from './package-dir.js';
 import { PackageFS } from './package-fs.js';
-import { PackageResolution } from './package-resolution.js';
 
 /**
  * Virtual package file system.
@@ -17,8 +18,8 @@ import { PackageResolution } from './package-resolution.js';
 export class VirtualPackageFS extends PackageFS {
 
   readonly #root: string;
-  readonly #byURI = new Map<string, PackageFS.PackageDir>();
-  readonly #byName = new Map<string, Map<string, PackageFS.PackageDir>>();
+  readonly #byURI = new Map<string, PackageDir>();
+  readonly #byName = new Map<string, Map<string, PackageDir>>();
 
   /**
    * Constructs virtual package file system.
@@ -110,7 +111,7 @@ export class VirtualPackageFS extends PackageFS {
     return this;
   }
 
-  #addPackage(packageDir: PackageFS.PackageDir): void {
+  #addPackage(packageDir: PackageDir): void {
     const { uri, packageInfo: packageInfo } = packageDir;
     const { name, version } = packageInfo;
     let byVersion = this.#byName.get(name);
