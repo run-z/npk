@@ -102,7 +102,7 @@ describe('ImportResolution', () => {
 
     describe('resolveDependency', () => {
       it('resolves self-dependency', () => {
-        expect(resolution.resolveDependency(resolution)).toEqual({ kind: 'self' });
+        expect(resolution.resolveDependency(resolution)).toEqual({ kind: 'self', on: resolution });
       });
       it('does not resolve dependency on another URI import', () => {
         expect(

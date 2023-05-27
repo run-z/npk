@@ -4,12 +4,12 @@ import { PackageFS } from '../fs/package-fs.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
+import { Generic$Resolution } from './generic.resolution.js';
 import { PackageEntry$Resolution } from './package-entry.resolution.js';
 import { PackageFile$Resolution } from './package-file.resolution.js';
 import { PackagePrivate$Resolution } from './package-private.resolution.js';
 import { Package$Resolution } from './package.resolution.js';
 import { ANY_RANGE } from './parse-range.js';
-import { Unknown$Resolution } from './unknown.resolution.js';
 import { uriToImport } from './uri-to-import.js';
 import { URI$Resolution } from './uri.resolution.js';
 
@@ -62,19 +62,19 @@ export class ImportResolver {
       case 'implied':
       case 'package':
       case 'entry':
-        return new Unknown$Resolution(this, `import:${spec.kind}:${spec.spec}`, spec);
+        return new Generic$Resolution(this, `import:${spec.kind}:${spec.spec}`, spec);
       case 'path':
-        return new Unknown$Resolution(this, `import:${spec.kind}:${spec.uri}`, spec);
+        return new Generic$Resolution(this, `import:${spec.kind}:${spec.uri}`, spec);
       case 'private':
-        return new Unknown$Resolution(this, `import:${spec.kind}:${spec.spec.slice(1)}`, spec);
+        return new Generic$Resolution(this, `import:${spec.kind}:${spec.spec.slice(1)}`, spec);
       case 'synthetic':
-        return new Unknown$Resolution(
+        return new Generic$Resolution(
           this,
           `import:${spec.kind}:${encodeURIComponent(spec.spec.slice(1))}`,
           spec,
         );
       case 'unknown':
-        return new Unknown$Resolution(
+        return new Generic$Resolution(
           this,
           `import:${spec.kind}:${encodeURIComponent(spec.spec)}`,
           spec,

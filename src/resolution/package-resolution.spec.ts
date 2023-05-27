@@ -222,11 +222,14 @@ describe('PackageResolution', () => {
 
   describe('resolveDependency', () => {
     it('resolves self-dependency', () => {
-      expect(root.resolveDependency(root)).toEqual({ kind: 'self' });
+      expect(root.resolveDependency(root)).toEqual({ kind: 'self', on: root });
     });
     it('resolves dependency on package entry', () => {
-      expect(root.resolveDependency(root.resolveImport(root.uri + '/test/submodule'))).toEqual({
+      const on = root.resolveImport(root.uri + '/test/submodule');
+
+      expect(root.resolveDependency(on)).toEqual({
         kind: 'self',
+        on,
       });
     });
     it('resolves package entry dependency on another package entry', () => {
@@ -245,6 +248,7 @@ describe('PackageResolution', () => {
 
       expect(dependant.resolveDependency(dependency)).toEqual({
         kind: 'runtime',
+        on: dependency,
       });
     });
     it('resolves runtime dependency', async () => {
@@ -257,9 +261,11 @@ describe('PackageResolution', () => {
 
       expect(root.resolveDependency(dep)).toEqual({
         kind: 'runtime',
+        on: dep,
       });
       expect(root.resolveDependency(dep)).toEqual({
         kind: 'runtime',
+        on: dep,
       });
     });
     it('resolves dev dependency', async () => {
@@ -276,6 +282,7 @@ describe('PackageResolution', () => {
 
       expect(root.resolveDependency(dep)).toEqual({
         kind: 'dev',
+        on: dep,
       });
     });
     it('resolves peer dependency', async () => {
@@ -293,6 +300,7 @@ describe('PackageResolution', () => {
 
       expect(root.resolveDependency(dep)).toEqual({
         kind: 'peer',
+        on: dep,
       });
     });
     it('does not resolve missing dependency', () => {
@@ -315,6 +323,7 @@ describe('PackageResolution', () => {
       expect(root.resolveDependency(dep2)).toBeNull();
       expect(root.resolveDependency(dep1)).toEqual({
         kind: 'runtime',
+        on: dep1,
       });
     });
     it('does not resolve among multiple dependency versions', async () => {

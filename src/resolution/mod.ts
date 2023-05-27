@@ -1,4 +1,4 @@
-export * from './dependency-resolution.js';
+export * from './import-dependency.js';
 export * from './import-resolution.js';
 export * from './import.js';
 export * from './package-resolution.js';

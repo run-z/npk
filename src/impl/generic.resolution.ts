@@ -4,7 +4,7 @@ import { recognizeImport } from '../resolution/recognize-import.js';
 import { ImportResolver } from './import-resolver.js';
 import { Import$Resolution } from './import.resolution.js';
 
-export class Unknown$Resolution extends Import$Resolution<Import> {
+export class Generic$Resolution extends Import$Resolution<Import> {
 
   readonly #resolver: ImportResolver;
 

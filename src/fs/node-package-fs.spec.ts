@@ -61,7 +61,7 @@ describe('NodePackageFS', () => {
 
     it('resolves package self-reference', () => {
       expect(root.resolveImport(root.packageInfo.name)).toBe(root);
-      expect(root.resolveDependency(root)).toEqual({ kind: 'self' });
+      expect(root.resolveDependency(root)).toEqual({ kind: 'self', on: root });
     });
     it('resolves own directory dependency', () => {
       expect(root.resolveImport('.')).toBe(root);
@@ -70,25 +70,37 @@ describe('NodePackageFS', () => {
       const nodeImport = root.resolveImport('node:fs');
 
       expect(nodeImport.importSpec.kind).toBe('implied');
-      expect(root.resolveDependency(nodeImport)).toEqual({ kind: 'implied' });
+      expect(root.resolveDependency(nodeImport)).toEqual({
+        kind: 'implied',
+        on: nodeImport,
+      });
     });
     it('resolves synthetic dependency', () => {
       const nodeImport = root.resolveImport('\0internal');
 
       expect(nodeImport.importSpec.kind).toBe('synthetic');
-      expect(root.resolveDependency(nodeImport)).toEqual({ kind: 'synthetic' });
+      expect(root.resolveDependency(nodeImport)).toEqual({
+        kind: 'synthetic',
+        on: nodeImport,
+      });
     });
     it('resolves runtime dependency', () => {
       const depImport = root.resolveImport('semver');
 
       expect(depImport.importSpec.kind).toBe('package');
-      expect(root.resolveDependency(depImport)).toEqual({ kind: 'runtime' });
+      expect(root.resolveDependency(depImport)).toEqual({
+        kind: 'runtime',
+        on: depImport,
+      });
     });
     it('resolves dev dependency', () => {
       const depImport = root.resolveImport('typescript');
 
       expect(depImport.importSpec.kind).toBe('package');
-      expect(root.resolveDependency(depImport)).toEqual({ kind: 'dev' });
+      expect(root.resolveDependency(depImport)).toEqual({
+        kind: 'dev',
+        on: depImport,
+      });
     });
     it('resolves package file by URI', () => {
       const req = createRequire(import.meta.url);
@@ -104,12 +116,18 @@ describe('NodePackageFS', () => {
         uri: path,
       });
       expect(fileImport.subpath).toBe(path.slice(1));
-      expect(root.resolveDependency(fileImport)).toEqual({ kind: 'dev' });
+      expect(root.resolveDependency(fileImport)).toEqual({
+        kind: 'dev',
+        on: fileImport,
+      });
 
       const depImport = root.resolveImport('typescript');
 
       expect(depImport.importSpec.kind).toBe('package');
-      expect(root.resolveDependency(depImport)).toEqual({ kind: 'dev' });
+      expect(root.resolveDependency(depImport)).toEqual({
+        kind: 'dev',
+        on: depImport,
+      });
     });
     it('resolves package by URI', () => {
       const req = createRequire(import.meta.url);
@@ -125,7 +143,10 @@ describe('NodePackageFS', () => {
       });
       expect(packageImport.subpath).toBe('');
       expect(packageImport.uri).toBe(dir);
-      expect(root.resolveDependency(packageImport)).toEqual({ kind: 'dev' });
+      expect(root.resolveDependency(packageImport)).toEqual({
+        kind: 'dev',
+        on: packageImport,
+      });
     });
     it('does not resolve non-file URL', () => {
       const urlImport = root.resolveImport('http://localhost/pkg/test');
@@ -150,7 +171,10 @@ describe('NodePackageFS', () => {
         uri: './src',
       });
       expect(dirImport.subpath).toBe('/src');
-      expect(root.resolveDependency(dirImport)).toEqual({ kind: 'self' });
+      expect(root.resolveDependency(dirImport)).toEqual({
+        kind: 'self',
+        on: dirImport,
+      });
       expect(dirImport.host).toBe(root);
     });
     it('resolves sub-directory dependency with trailing slash', () => {
@@ -164,7 +188,10 @@ describe('NodePackageFS', () => {
         uri: './src/',
       });
       expect(dirImport.subpath).toBe('/src/');
-      expect(root.resolveDependency(dirImport)).toEqual({ kind: 'self' });
+      expect(root.resolveDependency(dirImport)).toEqual({
+        kind: 'self',
+        on: dirImport,
+      });
       expect(dirImport.host).toBe(root);
     });
   });
