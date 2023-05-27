@@ -6,10 +6,10 @@ export function parseRange(range: string | undefined): Range | undefined {
   }
 
   try {
-    return new semver.Range(range);
+    return new semver.Range(range.replace(RANGE_PROTOCOL_PATTERN, ''));
   } catch {
     return;
   }
 }
 
-export const ANY_RANGE = /*#__PURE__*/ new semver.Range('*');
+const RANGE_PROTOCOL_PATTERN = /^[a-z]+:/;

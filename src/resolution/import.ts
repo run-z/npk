@@ -3,91 +3,9 @@
  *
  * Several kinds of specifiers recognized by {@link recognizeImport} function.
  */
-export type Import =
-  | Import.Package
-  | Import.Entry
-  | Import.Implied
-  | Import.URI
-  | Import.Path
-  | Import.Private
-  | Import.Synthetic
-  | Import.Unknown;
+export type Import = Import.URI | Import.Path | Import.SubPackage | Import.Ambient | Import.Unknown;
 
 export namespace Import {
-  /**
-   * Package import specifier.
-   *
-   * May be scoped or unscoped package, and may include import sub-path.
-   */
-  export interface Package {
-    readonly kind: 'package';
-
-    /**
-     * Original import specifier.
-     */
-    readonly spec: string;
-
-    /**
-     * Imported package name, excluding {@link subpath}.
-     */
-    readonly name: string;
-
-    /**
-     * Resolved package scope. I.e. the part of the {@link name} with `@` prefix, if any.
-     */
-    readonly scope: `@${string}` | undefined;
-
-    /**
-     * Local name within imported package {@link scope}.
-     *
-     * Part of the {@link name} after the the slash (`/`) for scoped package, or the {@link name} itself for
-     * unscoped one.
-     */
-    readonly local: string;
-
-    readonly subpath?: undefined;
-  }
-
-  /**
-   * Package [entry point] or file import specifier.
-   *
-   * [entry point]: https://nodejs.org/dist/latest/docs/api/packages.html#subpath-exports
-   */
-  export interface Entry extends Omit<Package, 'kind' | 'subpath'> {
-    readonly kind: 'entry';
-
-    /**
-     * Imported subpath following package {@link name} including leading slash.
-     */
-    readonly subpath: `/${string}`;
-  }
-
-  /**
-   * {@link SubPackageResolution Sub-package} import specified.
-   */
-  export type SubPackage = Package | Entry | Relative | Private;
-
-  /**
-   * Implied module import specifier, such as execution environment.
-   */
-  export interface Implied {
-    readonly kind: 'implied';
-
-    /**
-     * Original import specifier.
-     */
-    readonly spec: string;
-
-    /**
-     * The source of implied dependency.
-     *
-     * Can be anything, e.g. `node` or `browser`.
-     *
-     * Only `node` built-in imports {@link recognizeImport recognized} currently.
-     */
-    readonly from: string;
-  }
-
   /**
    * Absolute URI import specifier.
    */
@@ -109,11 +27,6 @@ export namespace Import {
      */
     readonly path: string;
   }
-
-  /**
-   * Absolute or relative import path specifier.
-   */
-  export type Path = Absolute | Relative;
 
   /**
    * Absolute import path specifier.
@@ -178,6 +91,59 @@ export namespace Import {
   }
 
   /**
+   * Absolute or relative import path specifier.
+   */
+  export type Path = Absolute | Relative;
+
+  /**
+   * Package import specifier.
+   *
+   * May be scoped or unscoped package, and may include import sub-path.
+   */
+  export interface Package {
+    readonly kind: 'package';
+
+    /**
+     * Original import specifier.
+     */
+    readonly spec: string;
+
+    /**
+     * Imported package name, excluding {@link subpath}.
+     */
+    readonly name: string;
+
+    /**
+     * Resolved package scope. I.e. the part of the {@link name} with `@` prefix, if any.
+     */
+    readonly scope: `@${string}` | undefined;
+
+    /**
+     * Local name within imported package {@link scope}.
+     *
+     * Part of the {@link name} after the the slash (`/`) for scoped package, or the {@link name} itself for
+     * unscoped one.
+     */
+    readonly local: string;
+
+    readonly subpath?: undefined;
+  }
+
+  /**
+   * Package [entry point] or file import specifier.
+   *
+   * [entry point]: https://nodejs.org/dist/latest/docs/api/packages.html#subpath-exports
+   */
+  export interface Entry extends Omit<Package, 'kind' | 'subpath'> {
+    readonly kind: 'entry';
+
+    /**
+     * Imported subpath following package {@link name} including leading slash.
+     */
+    readonly subpath: `/${string}`;
+  }
+
+  /**
    * Private [subpath import] specifier.
    *
    * [subpath import]: https://nodejs.org/dist/latest/docs/api/packages.html#subpath-imports
@@ -189,6 +155,32 @@ export namespace Import {
      * Original import specifier. Always starts with `#`.
      */
     readonly spec: `#${string}`;
+  }
+
+  /**
+   * {@link SubPackageResolution Sub-package} import specified.
+   */
+  export type SubPackage = Package | Entry | Relative | Private;
+
+  /**
+   * Implied module import specifier, such as execution environment.
+   */
+  export interface Implied {
+    readonly kind: 'implied';
+
+    /**
+     * Original import specifier.
+     */
+    readonly spec: string;
+
+    /**
+     * The source of implied dependency.
+     *
+     * Can be anything, e.g. `node` or `browser`.
+     *
+     * Only `node` built-in imports {@link recognizeImport recognized} currently.
+     */
+    readonly from: string;
   }
 
   /**
@@ -204,6 +196,13 @@ export namespace Import {
      */
     readonly spec: `\0${string}`;
   }
+
+  /**
+   * Ambient module import specifier.
+   *
+   * Ambient module is either {@link Implied implied}, or {@link Synthetic synthetic} one.
+   */
+  export type Ambient = Implied | Synthetic;
 
   /**
    * Unknown import specifier not recognized as any of the other kinds of imports.

@@ -4,7 +4,7 @@ import { recognizeImport } from '../resolution/recognize-import.js';
 import { ImportResolver } from './import-resolver.js';
 import { Import$Resolution } from './import.resolution.js';
 
-export class Unknown$Resolution extends Import$Resolution<Import> {
+export class Generic$Resolution extends Import$Resolution<Import> {
 
   readonly #resolver: ImportResolver;
 
@@ -13,8 +13,8 @@ export class Unknown$Resolution extends Import$Resolution<Import> {
     this.#resolver = resolver;
   }
 
-  override resolveImport(spec: Import | string): ImportResolution {
-    return this.#resolver.resolve(recognizeImport(spec));
+  override async resolveImport(spec: Import | string): Promise<ImportResolution> {
+    return await this.#resolver.resolve(recognizeImport(spec));
   }
 
 }

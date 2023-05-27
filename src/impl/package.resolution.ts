@@ -1,6 +1,6 @@
-import { type PackageInfo } from '../package-info.js';
-import { type PackageJson } from '../package.json.js';
-import { DependencyResolution } from '../resolution/dependency-resolution.js';
+import { type PackageInfo } from '../package/package-info.js';
+import { type PackageJson } from '../package/package.json.js';
+import { ImportDependency, SubPackageDependency } from '../resolution/import-dependency.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
@@ -14,23 +14,21 @@ export class Package$Resolution
   extends SubPackage$Resolution<Import.Package>
   implements PackageResolution {
 
-  readonly #resolver: ImportResolver;
   readonly #resolutionBaseURI: string;
-  #packageInfo: PackageInfo | undefined;
+  readonly #packageInfo: PackageInfo;
   readonly #dependencies = new Map<string, PackageDep | false>();
   #peerDependencies?: PackageJson.Dependencies;
 
   constructor(
     resolver: ImportResolver,
     uri: string,
-    importSpec?: Import.Package,
-    packageInfo?: PackageInfo,
+    packageInfo: PackageInfo,
+    importSpec: Import.Package = packageImportSpec(packageInfo),
   ) {
-    super(resolver, uri, importSpec ?? (() => packageImportSpec(this)));
+    super(resolver, uri, importSpec);
 
-    this.#resolver = resolver;
-    this.#resolutionBaseURI = dirURI(uri);
     this.#packageInfo = packageInfo;
+    this.#resolutionBaseURI = dirURI(uri);
   }
 
   override get host(): this {
@@ -46,14 +44,6 @@ export class Package$Resolution
   }
 
   get packageInfo(): PackageInfo {
-    if (!this.#packageInfo) {
-      this.#packageInfo = this.#resolver.fs.loadPackage(this.uri);
-
-      if (!this.#packageInfo) {
-        throw new ReferenceError(`No "package.json" file found at <${this.uri}>`);
-      }
-    }
-
     return this.#packageInfo;
   }
 
@@ -86,7 +76,7 @@ export class Package$Resolution
     return (this.#peerDependencies = installedDeps);
   }
 
-  override resolveDependency(another: ImportResolution): DependencyResolution | null {
+  override resolveDependency(another: ImportResolution): ImportDependency | null {
     const importDependency = super.resolveDependency(another);
 
     if (importDependency) {
@@ -94,34 +84,35 @@ export class Package$Resolution
     }
 
     // Find dependency on host package.
-    const pkg = another.host;
+    const on = another.asSubPackage();
 
-    if (!pkg) {
+    if (!on) {
       return null;
     }
 
-    const knownDep = this.#dependencies.get(pkg.uri);
+    const { host } = on;
+    const knownDep = this.#dependencies.get(host.uri);
 
     if (knownDep != null) {
-      return knownDep ? { kind: knownDep.kind } : null;
+      return knownDep ? { kind: knownDep.kind, on } : null;
     }
 
     const { dependencies, devDependencies } = this.packageInfo.packageJson;
 
     const dep =
-      this.#findDep(pkg, dependencies, 'runtime')
-      || this.#findDep(pkg, this.#getPeerDependencies(), 'peer')
-      || this.#findDep(pkg, devDependencies, 'dev');
+      this.#findDep(host, dependencies, 'runtime')
+      || this.#findDep(host, this.#getPeerDependencies(), 'peer')
+      || this.#findDep(host, devDependencies, 'dev');
 
-    this.#dependencies.set(pkg.uri, dep ? dep : false);
+    this.#dependencies.set(host.uri, dep ? dep : false);
 
-    return dep && { kind: dep.kind };
+    return dep && { kind: dep.kind, on };
   }
 
   #findDep(
     pkg: PackageResolution,
     dependencies: PackageJson.Dependencies | undefined,
-    kind: DependencyResolution['kind'],
+    kind: SubPackageDependency['kind'],
   ): PackageDep | null {
     if (!dependencies) {
       return null;
@@ -134,7 +125,7 @@ export class Package$Resolution
       return null;
     }
 
-    return { kind, pkg };
+    return { kind, on: pkg };
   }
 
   override asPackage(): this {
@@ -143,9 +134,7 @@ export class Package$Resolution
 
 }
 
-function packageImportSpec({
-  packageInfo: { name, scope, localName },
-}: PackageResolution): Import.Package {
+function packageImportSpec({ name, scope, localName }: PackageInfo): Import.Package {
   const spec = recognizeImport(name);
 
   if (spec.kind === 'package') {
@@ -168,6 +157,7 @@ export interface Package$Resolution extends PackageResolution {
   asImpliedResolution(): undefined;
 }
 
-interface PackageDep extends DependencyResolution {
-  readonly pkg: PackageResolution;
+interface PackageDep {
+  readonly kind: SubPackageDependency['kind'];
+  readonly on: PackageResolution;
 }

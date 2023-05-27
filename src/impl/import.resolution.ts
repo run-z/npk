@@ -1,4 +1,4 @@
-import { DependencyResolution } from '../resolution/dependency-resolution.js';
+import { AmbientDependency, ImportDependency } from '../resolution/import-dependency.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
@@ -10,22 +10,12 @@ export abstract class Import$Resolution<TImport extends Import>
 
   readonly #resolver: ImportResolver;
   readonly #uri: string;
-  #getImportSpec: () => TImport;
+  readonly #importSpec: TImport;
 
-  constructor(resolver: ImportResolver, uri: string, importSpec: TImport | (() => TImport)) {
+  constructor(resolver: ImportResolver, uri: string, importSpec: TImport) {
     this.#resolver = resolver;
     this.#uri = uri;
-    if (typeof importSpec === 'function') {
-      this.#getImportSpec = () => {
-        const spec = importSpec();
-
-        this.#getImportSpec = () => spec;
-
-        return spec;
-      };
-    } else {
-      this.#getImportSpec = () => importSpec;
-    }
+    this.#importSpec = importSpec;
   }
 
   get root(): ImportResolution {
@@ -45,37 +35,37 @@ export abstract class Import$Resolution<TImport extends Import>
   }
 
   get importSpec(): TImport {
-    return this.#getImportSpec();
+    return this.#importSpec;
   }
 
-  abstract resolveImport(spec: Import | string): ImportResolution;
+  abstract resolveImport(spec: Import | string): Promise<ImportResolution>;
 
-  resolveDependency(another: ImportResolution): DependencyResolution | null {
-    if (another.uri === this.uri) {
+  resolveDependency(on: ImportResolution): ImportDependency | null {
+    if (on.uri === this.uri) {
       // Import itself.
-      return { kind: 'self' };
+      return { kind: 'self', on };
     }
 
     const { host } = this;
 
     if (host) {
-      if (host.uri === another.host?.uri) {
+      if (host.uri === on.host?.uri) {
         // Import submodule of the same host.
-        return { kind: 'self' };
+        return { kind: 'self', on };
       }
 
       if (host.uri !== this.uri) {
         // Resolve host package dependency instead.
-        return host.resolveDependency(another);
+        return host.resolveDependency(on);
       }
     }
 
     const {
       importSpec: { kind },
-    } = another;
+    } = on;
 
     if (kind === 'implied' || kind === 'synthetic') {
-      return { kind };
+      return { kind, on } as AmbientDependency;
     }
 
     return null;

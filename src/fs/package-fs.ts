@@ -1,7 +1,8 @@
-import { PackageInfo } from '../package-info.js';
-import { ImportResolution } from './import-resolution.js';
-import { Import } from './import.js';
-import { PackageResolution } from './package-resolution.js';
+import { PackageInfo } from '../package/package-info.js';
+import { ImportResolution } from '../resolution/import-resolution.js';
+import { Import } from '../resolution/import.js';
+import { PackageResolution } from '../resolution/package-resolution.js';
+import { PackageDir } from './package-dir.js';
 
 /**
  * Virtual file system to work with packages.
@@ -33,10 +34,10 @@ export abstract class PackageFS {
    *
    * @param uri - Source directory.
    *
-   * @returns Either loaded package info contents, or `undefined` if directory does not contain
+   * @returns Promise resolved to either loaded package info contents, or `undefined` if directory does not contain
    * {@link isValidPackageJson valid} `package.json` file.
    */
-  abstract loadPackage(uri: string): PackageInfo | undefined;
+  abstract loadPackage(uri: string): Promise<PackageInfo | undefined>;
 
   /**
    * Finds parent directory.
@@ -78,20 +79,20 @@ export abstract class PackageFS {
    * @param relativeTo - Package to resolve another one against.
    * @param name - Package name to resolve.
    *
-   * @returns Resolved module URI, or `undefined` if the name can not be resolved.
+   * @returns Promise resolve to either module URI, or `undefined` if the name can not be resolved.
    */
-  abstract resolveName(relativeTo: PackageResolution, name: string): string | undefined;
+  abstract resolveName(relativeTo: PackageResolution, name: string): Promise<string | undefined>;
 
   /**
    * Searches for package directory containing the given file or URI.
    *
    * @param uri - URI of the target file or directory.
    *
-   * @returns Either enclosing package directory, or `undefined` if not found.
+   * @returns Promise resolved to either enclosing package directory, or `undefined` if not found.
    */
-  findPackageDir(uri: string): PackageFS.PackageDir | undefined {
+  async findPackageDir(uri: string): Promise<PackageDir | undefined> {
     for (;;) {
-      const packageInfo = this.loadPackage(uri);
+      const packageInfo = await this.loadPackage(uri);
 
       if (packageInfo) {
         return {
@@ -113,23 +114,4 @@ export abstract class PackageFS {
     }
   }
 
-}
-
-export namespace PackageFS {
-  /**
-   * Package directory representation.
-   *
-   * Such directory contains valid `package.json` file.
-   */
-  export interface PackageDir {
-    /**
-     * Directory URI.
-     */
-    readonly uri: string;
-
-    /**
-     * Information on package the directory contains.
-     */
-    readonly packageInfo: PackageInfo;
-  }
 }

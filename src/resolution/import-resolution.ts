@@ -1,4 +1,4 @@
-import { DependencyResolution } from './dependency-resolution.js';
+import { ImportDependency } from './import-dependency.js';
 import { Import } from './import.js';
 import { PackageResolution } from './package-resolution.js';
 import { SubPackageResolution } from './sub-package-resolution.js';
@@ -47,18 +47,18 @@ export interface ImportResolution<out TImport extends Import = Import> {
    *
    * @param spec - Imported module specifier, either {@link recognizeImport recognized} or not.
    *
-   * @returns Imported module resolution.
+   * @returns Promise resolved to imported module resolution.
    */
-  resolveImport(spec: Import | string): ImportResolution;
+  resolveImport(spec: Import | string): Promise<ImportResolution>;
 
   /**
-   * Resolves direct dependency of the module on `another` one.
+   * Resolves direct dependency of the module on another one.
    *
-   * @param another - The package to check.
+   * @param on - The package to resolve dependency on.
    *
-   * @returns Either dependency descriptor, or `null` if the module does not depend on `another` one.
+   * @returns Either dependency descriptor, or `null` if the module does not depend on another one.
    */
-  resolveDependency(another: ImportResolution): DependencyResolution | null;
+  resolveDependency(on: ImportResolution): ImportDependency | null;
 
   /**
    * Represents this module resolution as package resolution, if possible.

@@ -13,7 +13,7 @@ export abstract class SubPackage$Resolution<TImport extends Import.SubPackage>
 
   readonly #resolver: ImportResolver;
 
-  constructor(resolver: ImportResolver, uri: string, importSpec: TImport | (() => TImport)) {
+  constructor(resolver: ImportResolver, uri: string, importSpec: TImport) {
     super(resolver, uri, importSpec);
 
     this.#resolver = resolver;
@@ -23,41 +23,44 @@ export abstract class SubPackage$Resolution<TImport extends Import.SubPackage>
 
   abstract get subpath(): '' | `/${string}` | `#${string}`;
 
-  override resolveImport(spec: Import | string): ImportResolution {
+  override async resolveImport(spec: Import | string): Promise<ImportResolution> {
     spec = recognizeImport(spec);
 
     switch (spec.kind) {
       case 'path':
-        return this.#resolvePath(spec.uri);
+        return await this.#resolvePath(spec.uri);
       case 'package':
       case 'entry':
-        return this.#resolver.resolveEntry(this.host, spec) ?? this.#resolver.resolve(spec);
+        return (
+          (await this.#resolver.resolveEntry(this.host, spec))
+          ?? (await this.#resolver.resolve(spec))
+        );
       case 'private':
-        return this.#resolver.resolvePrivate(this.host, spec);
+        return await this.#resolver.resolvePrivate(this.host, spec);
       case 'uri':
-        return this.#resolveURI(spec);
+        return await this.#resolveURI(spec);
       case 'synthetic':
       case 'implied':
       case 'unknown':
-        return this.#resolver.resolve(spec);
+        return await this.#resolver.resolve(spec);
     }
   }
 
-  #resolveURI(spec: Import.URI): ImportResolution {
+  async #resolveURI(spec: Import.URI): Promise<ImportResolution> {
     const packageURI = this.#resolver.fs.recognizePackageURI(spec);
 
     if (packageURI != null) {
-      return this.#resolvePath(spec.spec);
+      return await this.#resolvePath(packageURI);
     }
 
     // Non-package URI.
-    return this.#resolver.resolveURI(spec);
+    return await this.#resolver.resolveURI(spec);
   }
 
-  #resolvePath(path: string): ImportResolution {
+  async #resolvePath(path: string): Promise<ImportResolution> {
     const uriImport = uriToImport(this.#resolver.fs.resolvePath(this, path));
 
-    return this.#resolver.resolveSubPackage(uriImport);
+    return await this.#resolver.resolveSubPackage(uriImport);
   }
 
   asSubPackage(): this {
