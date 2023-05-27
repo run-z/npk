@@ -35,7 +35,7 @@ export class ImportResolver {
   #init(): void {
     if (!this.#initialized) {
       this.#initialized = true;
-      this.#addResolution(this.#root);
+      this.#addResolution(this.#root.uri, this.#root);
     }
   }
 
@@ -47,38 +47,32 @@ export class ImportResolver {
     return this.#fs;
   }
 
-  resolve(spec: Import, createResolution?: () => ImportResolution | undefined): ImportResolution {
+  resolve(spec: Import): ImportResolution {
     if (spec.kind === 'uri') {
-      return this.resolveURI(spec, createResolution);
+      return this.resolveURI(spec);
     }
 
     this.#init();
 
-    return this.#addResolution(createResolution?.() ?? this.#createDefaultResolution(spec));
+    const uri = this.#genericResolutionURI(spec);
+
+    return this.#addResolution(uri, new Generic$Resolution(this, uri, spec));
   }
 
-  #createDefaultResolution(spec: Exclude<Import, Import.URI>): ImportResolution {
+  #genericResolutionURI(spec: Exclude<Import, Import.URI>): string {
     switch (spec.kind) {
       case 'implied':
       case 'package':
       case 'entry':
-        return new Generic$Resolution(this, `import:${spec.kind}:${spec.spec}`, spec);
+        return `import:${spec.kind}:${spec.spec}`;
       case 'path':
-        return new Generic$Resolution(this, `import:${spec.kind}:${spec.uri}`, spec);
+        return `import:${spec.kind}:${spec.uri}`;
       case 'private':
-        return new Generic$Resolution(this, `import:${spec.kind}:${spec.spec.slice(1)}`, spec);
+        return `import:${spec.kind}:${spec.spec.slice(1)}`;
       case 'synthetic':
-        return new Generic$Resolution(
-          this,
-          `import:${spec.kind}:${encodeURIComponent(spec.spec.slice(1))}`,
-          spec,
-        );
+        return `import:${spec.kind}:${encodeURIComponent(spec.spec.slice(1))}`;
       case 'unknown':
-        return new Generic$Resolution(
-          this,
-          `import:${spec.kind}:${encodeURIComponent(spec.spec)}`,
-          spec,
-        );
+        return `import:${spec.kind}:${encodeURIComponent(spec.spec)}`;
     }
   }
 
@@ -98,7 +92,7 @@ export class ImportResolver {
 
     return (
       this.byURI(uri)
-      ?? this.#addResolution(createResolution?.(uri) ?? new URI$Resolution(this, spec), uri)
+      ?? this.#addResolution(uri, createResolution?.(uri) ?? new URI$Resolution(this, spec))
     );
   }
 
@@ -131,7 +125,7 @@ export class ImportResolver {
 
     const newPackage = createPackage?.();
 
-    return newPackage && this.#addResolution(newPackage);
+    return newPackage && this.#addResolution(newPackage.uri, newPackage);
   }
 
   resolvePrivate(host: PackageResolution, spec: Import.Private): ImportResolution {
@@ -201,20 +195,18 @@ export class ImportResolver {
     );
   }
 
-  #addResolution<T extends ImportResolution>(resolution: T, uri = resolution.uri): T {
+  #addResolution<T extends ImportResolution>(uri: string, resolution: T): T {
     this.#byURI.set(uri, resolution);
 
-    if (uri === resolution.uri) {
-      const pkg = resolution.asPackage();
+    const pkg = resolution.asPackage();
 
-      if (pkg) {
-        const withSameName = this.#byName.get(pkg.packageInfo.name);
+    if (pkg) {
+      const withSameName = this.#byName.get(pkg.packageInfo.name);
 
-        if (withSameName) {
-          withSameName.push(pkg);
-        } else {
-          this.#byName.set(pkg.packageInfo.name, [pkg]);
-        }
+      if (withSameName) {
+        withSameName.push(pkg);
+      } else {
+        this.#byName.set(pkg.packageInfo.name, [pkg]);
       }
     }
 
