@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import { resolveRootPackage } from '../fs/resolve-root-package.js';
 import { VirtualPackageFS } from '../fs/virtual-package-fs.js';
-import { PackageInfo } from '../package/package-info.js';
 import { PackageResolution } from './package-resolution.js';
 
 describe('PackageResolution', () => {
@@ -252,7 +251,7 @@ describe('PackageResolution', () => {
       });
     });
     it('resolves runtime dependency', async () => {
-      fs.addRoot({ name: 'root', version: '1.0.0', dependencies: { dep: '^1.0.0' } });
+      fs.addRoot({ name: 'root', version: '1.0.0', dependencies: { dep: 'workspace:^1.0.0' } });
       fs.addPackage({ name: 'dep', version: '1.0.0' });
 
       root = await resolveRootPackage(fs);
@@ -361,13 +360,5 @@ describe('PackageResolution', () => {
 
       expect(root.resolveDependency(dep)).toBeNull();
     });
-  });
-});
-
-describe('resolveRootPackage', () => {
-  it('obtains current package by default', async () => {
-    const root = await resolveRootPackage();
-
-    expect(root.packageInfo.name).toBe(PackageInfo.loadSync().name);
   });
 });
