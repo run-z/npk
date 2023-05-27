@@ -11,5 +11,3 @@ export function parseRange(range: string | undefined): Range | undefined {
     return;
   }
 }
-
-export const ANY_RANGE = /*#__PURE__*/ new semver.Range('*');

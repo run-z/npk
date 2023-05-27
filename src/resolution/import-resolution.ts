@@ -47,9 +47,9 @@ export interface ImportResolution<out TImport extends Import = Import> {
    *
    * @param spec - Imported module specifier, either {@link recognizeImport recognized} or not.
    *
-   * @returns Imported module resolution.
+   * @returns Promise resolved to imported module resolution.
    */
-  resolveImport(spec: Import | string): ImportResolution;
+  resolveImport(spec: Import | string): Promise<ImportResolution>;
 
   /**
    * Resolves direct dependency of the module on another one.

@@ -89,18 +89,18 @@ describe('PackageResolution', () => {
   });
 
   describe('resolveImport', () => {
-    it('resolves itself', () => {
-      expect(root.resolveImport(root.packageInfo.name)).toBe(root);
+    it('resolves itself', async () => {
+      await expect(root.resolveImport(root.packageInfo.name)).resolves.toBe(root);
     });
-    it('resolves itself by URI', () => {
-      expect(root.resolveImport(root.uri)).toBe(root);
+    it('resolves itself by URI', async () => {
+      await expect(root.resolveImport(root.uri)).resolves.toBe(root);
     });
-    it('resolves itself by directory URI', () => {
-      expect(root.resolveImport(root.resolutionBaseURI)).toBe(root);
+    it('resolves itself by directory URI', async () => {
+      await expect(root.resolveImport(root.resolutionBaseURI)).resolves.toBe(root);
     });
-    it('resolves package file', () => {
+    it('resolves package file', async () => {
       const uri = root.uri + '/test/submodule';
-      const entry = root.resolveImport(uri).asSubPackage()!;
+      const entry = (await root.resolveImport(uri)).asSubPackage()!;
 
       expect(entry.importSpec).toEqual({
         kind: 'path',
@@ -113,9 +113,9 @@ describe('PackageResolution', () => {
       expect(entry.uri).toBe(uri);
       expect(entry.host).toBe(root);
     });
-    it('resolves private import', () => {
+    it('resolves private import', async () => {
       const spec = '#private/path';
-      const entry = root.resolveImport(spec).asSubPackage()!;
+      const entry = (await root.resolveImport(spec)).asSubPackage()!;
 
       expect(entry.importSpec).toEqual({
         kind: 'private',
@@ -131,7 +131,7 @@ describe('PackageResolution', () => {
       root = await resolveRootPackage(fs);
 
       const spec = 'dep/submodule';
-      const entry = root.resolveImport(spec).asSubPackage()!;
+      const entry = (await root.resolveImport(spec)).asSubPackage()!;
 
       expect(entry.importSpec).toEqual({
         kind: 'entry',
@@ -145,7 +145,7 @@ describe('PackageResolution', () => {
 
       const { host } = entry;
 
-      expect(host).toBe(root.resolveImport('dep'));
+      expect(host).toBe(await root.resolveImport('dep'));
       expect(host.importSpec).toEqual({
         kind: 'package',
         spec: 'dep',
@@ -154,9 +154,9 @@ describe('PackageResolution', () => {
       });
       expect(host.uri).toBe('package:dep');
     });
-    it('resolves URI import', () => {
+    it('resolves URI import', async () => {
       const uri = 'http://localhost/pkg/target';
-      const found = root.resolveImport(uri);
+      const found = await root.resolveImport(uri);
 
       expect(found.uri).toBe(uri);
       expect(found.importSpec).toEqual({
@@ -167,9 +167,9 @@ describe('PackageResolution', () => {
       });
       expect(found.host).toBeUndefined();
     });
-    it('resolves path import', () => {
+    it('resolves path import', async () => {
       const path = '../pkg/target';
-      const found = root.resolveImport(path);
+      const found = await root.resolveImport(path);
 
       expect(found.uri).toBe('package:pkg/target');
       expect(found.importSpec).toEqual({
@@ -179,19 +179,19 @@ describe('PackageResolution', () => {
         path: 'pkg/target',
       });
     });
-    it('resolves package by URI', () => {
+    it('resolves package by URI', async () => {
       fs.addPackage({ name: 'dep', version: '1.0.0' });
 
-      const found = root.resolveImport('package:dep/1.0.0');
+      const found = await root.resolveImport('package:dep/1.0.0');
 
       expect(found.uri).toBe('package:dep/1.0.0');
       expect(found.importSpec.kind).toBe('package');
       expect(found.asPackage()).toBe(found);
     });
-    it('resolves package by path', () => {
+    it('resolves package by path', async () => {
       fs.addPackage('package:root/dep', { name: 'dependency', version: '1.0.0' });
 
-      const found = root.resolveImport('./dep');
+      const found = await root.resolveImport('./dep');
 
       expect(found.uri).toBe('package:root/dep');
       expect(found.importSpec.kind).toBe('package');
@@ -206,7 +206,7 @@ describe('PackageResolution', () => {
       });
       root = await resolveRootPackage(fs);
 
-      expect(root.resolveImport('dep').uri).toBe('import:package:dep');
+      expect((await root.resolveImport('dep')).uri).toBe('import:package:dep');
     });
     it('resolves dependency with wrong version range as unknown import', async () => {
       fs.addRoot({
@@ -216,7 +216,7 @@ describe('PackageResolution', () => {
       });
       root = await resolveRootPackage(fs);
 
-      expect(root.resolveImport('dep').uri).toBe('import:package:dep');
+      expect((await root.resolveImport('dep')).uri).toBe('import:package:dep');
     });
   });
 
@@ -224,15 +224,15 @@ describe('PackageResolution', () => {
     it('resolves self-dependency', () => {
       expect(root.resolveDependency(root)).toEqual({ kind: 'self', on: root });
     });
-    it('resolves dependency on package entry', () => {
-      const on = root.resolveImport(root.uri + '/test/submodule');
+    it('resolves dependency on package entry', async () => {
+      const on = await root.resolveImport(root.uri + '/test/submodule');
 
       expect(root.resolveDependency(on)).toEqual({
         kind: 'self',
         on,
       });
     });
-    it('resolves package entry dependency on another package entry', () => {
+    it('resolves package entry dependency on another package entry', async () => {
       fs.addPackage('package:test', {
         name: 'test',
         version: '1.0.0',
@@ -243,8 +243,8 @@ describe('PackageResolution', () => {
         version: '1.0.0',
       });
 
-      const dependant = root.resolveImport('package:test/dist/test.js');
-      const dependency = root.resolveImport('package:dep/dist/lib.js');
+      const dependant = await root.resolveImport('package:test/dist/test.js');
+      const dependency = await root.resolveImport('package:dep/dist/lib.js');
 
       expect(dependant.resolveDependency(dependency)).toEqual({
         kind: 'runtime',
@@ -257,7 +257,7 @@ describe('PackageResolution', () => {
 
       root = await resolveRootPackage(fs);
 
-      const dep = root.resolveImport('dep').asPackage()!;
+      const dep = (await root.resolveImport('dep')).asPackage()!;
 
       expect(root.resolveDependency(dep)).toEqual({
         kind: 'runtime',
@@ -278,7 +278,7 @@ describe('PackageResolution', () => {
 
       root = await resolveRootPackage(fs);
 
-      const dep = root.resolveImport('dep').asPackage()!;
+      const dep = (await root.resolveImport('dep')).asPackage()!;
 
       expect(root.resolveDependency(dep)).toEqual({
         kind: 'dev',
@@ -296,15 +296,15 @@ describe('PackageResolution', () => {
 
       root = await resolveRootPackage(fs);
 
-      const dep = root.resolveImport('dep').asPackage()!;
+      const dep = (await root.resolveImport('dep')).asPackage()!;
 
       expect(root.resolveDependency(dep)).toEqual({
         kind: 'peer',
         on: dep,
       });
     });
-    it('does not resolve missing dependency', () => {
-      const dep = root.resolveImport('test:missing');
+    it('does not resolve missing dependency', async () => {
+      const dep = await root.resolveImport('test:missing');
 
       expect(root.resolveDependency(dep)).toBeNull();
       expect(root.resolveDependency(dep)).toBeNull();
@@ -316,8 +316,8 @@ describe('PackageResolution', () => {
 
       root = await resolveRootPackage(fs);
 
-      const dep1 = root.resolveImport('package:dep/1.0.0').asPackage()!;
-      const dep2 = root.resolveImport('package:dep/2.0.0').asPackage()!;
+      const dep1 = (await root.resolveImport('package:dep/1.0.0')).asPackage()!;
+      const dep2 = (await root.resolveImport('package:dep/2.0.0')).asPackage()!;
 
       expect(root.resolveDependency(dep2)).toBeNull();
       expect(root.resolveDependency(dep2)).toBeNull();
@@ -338,11 +338,11 @@ describe('PackageResolution', () => {
 
       fs.addPackage('package:dep2', { name: 'dep2', version: '1.0.0' }, true);
 
-      const dep2v1 = root.resolveImport('package:dep2').asPackage()!;
+      const dep2v1 = (await root.resolveImport('package:dep2')).asPackage()!;
 
       fs.addPackage('package:dep2@biz', { name: 'dep2', version: '1.0.0' }, true);
 
-      const dep2v2 = root.resolveImport('package:dep2@biz').asPackage()!;
+      const dep2v2 = (await root.resolveImport('package:dep2@biz')).asPackage()!;
 
       expect(root.resolveDependency(dep2v2)).toBeNull();
       expect(root.resolveDependency(dep2v1)).toBeNull();
@@ -357,7 +357,7 @@ describe('PackageResolution', () => {
       fs.addPackage({ name: 'dep', version: '1.0.0' });
       root = await resolveRootPackage(fs);
 
-      const dep = root.resolveImport('dep');
+      const dep = await root.resolveImport('dep');
 
       expect(root.resolveDependency(dep)).toBeNull();
     });

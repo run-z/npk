@@ -59,15 +59,15 @@ describe('NodePackageFS', () => {
       root = await resolveRootPackage(fs);
     });
 
-    it('resolves package self-reference', () => {
-      expect(root.resolveImport(root.packageInfo.name)).toBe(root);
+    it('resolves package self-reference', async () => {
+      await expect(root.resolveImport(root.packageInfo.name)).resolves.toBe(root);
       expect(root.resolveDependency(root)).toEqual({ kind: 'self', on: root });
     });
-    it('resolves own directory dependency', () => {
-      expect(root.resolveImport('.')).toBe(root);
+    it('resolves own directory dependency', async () => {
+      await expect(root.resolveImport('.')).resolves.toBe(root);
     });
-    it('resolves implied dependency', () => {
-      const nodeImport = root.resolveImport('node:fs');
+    it('resolves implied dependency', async () => {
+      const nodeImport = await root.resolveImport('node:fs');
 
       expect(nodeImport.importSpec.kind).toBe('implied');
       expect(root.resolveDependency(nodeImport)).toEqual({
@@ -75,8 +75,8 @@ describe('NodePackageFS', () => {
         on: nodeImport,
       });
     });
-    it('resolves synthetic dependency', () => {
-      const nodeImport = root.resolveImport('\0internal');
+    it('resolves synthetic dependency', async () => {
+      const nodeImport = await root.resolveImport('\0internal');
 
       expect(nodeImport.importSpec.kind).toBe('synthetic');
       expect(root.resolveDependency(nodeImport)).toEqual({
@@ -84,8 +84,8 @@ describe('NodePackageFS', () => {
         on: nodeImport,
       });
     });
-    it('resolves runtime dependency', () => {
-      const depImport = root.resolveImport('semver');
+    it('resolves runtime dependency', async () => {
+      const depImport = await root.resolveImport('semver');
 
       expect(depImport.importSpec.kind).toBe('package');
       expect(root.resolveDependency(depImport)).toEqual({
@@ -93,8 +93,8 @@ describe('NodePackageFS', () => {
         on: depImport,
       });
     });
-    it('resolves dev dependency', () => {
-      const depImport = root.resolveImport('typescript');
+    it('resolves dev dependency', async () => {
+      const depImport = await root.resolveImport('typescript');
 
       expect(depImport.importSpec.kind).toBe('package');
       expect(root.resolveDependency(depImport)).toEqual({
@@ -102,11 +102,11 @@ describe('NodePackageFS', () => {
         on: depImport,
       });
     });
-    it('resolves package file by URI', () => {
+    it('resolves package file by URI', async () => {
       const req = createRequire(import.meta.url);
       const uri = pathToFileURL(req.resolve('typescript')).href;
       const path = './' + /\/node_modules\/typescript\/(.*)$/.exec(uri)![1];
-      const fileImport = root.resolveImport(uri).asSubPackage()!;
+      const fileImport = (await root.resolveImport(uri)).asSubPackage()!;
 
       expect(fileImport.importSpec).toEqual({
         kind: 'path',
@@ -121,7 +121,7 @@ describe('NodePackageFS', () => {
         on: fileImport,
       });
 
-      const depImport = root.resolveImport('typescript');
+      const depImport = await root.resolveImport('typescript');
 
       expect(depImport.importSpec.kind).toBe('package');
       expect(root.resolveDependency(depImport)).toEqual({
@@ -129,11 +129,11 @@ describe('NodePackageFS', () => {
         on: depImport,
       });
     });
-    it('resolves package by URI', () => {
+    it('resolves package by URI', async () => {
       const req = createRequire(import.meta.url);
       const uri = pathToFileURL(req.resolve('typescript')).href;
       const dir = /(.*\/node_modules\/typescript\/).*$/.exec(uri)![1];
-      const packageImport = root.resolveImport(dir).asPackage()!;
+      const packageImport = (await root.resolveImport(dir)).asPackage()!;
 
       expect(packageImport.importSpec).toEqual({
         kind: 'package',
@@ -148,20 +148,20 @@ describe('NodePackageFS', () => {
         on: packageImport,
       });
     });
-    it('does not resolve non-file URL', () => {
-      const urlImport = root.resolveImport('http://localhost/pkg/test');
+    it('does not resolve non-file URL', async () => {
+      const urlImport = await root.resolveImport('http://localhost/pkg/test');
 
       expect(urlImport.importSpec.kind).toBe('uri');
       expect(root.resolveDependency(urlImport)).toBeNull();
     });
-    it('does not resolve missing dependency', () => {
-      const wrongImport = root.resolveImport('@run-z/wrong/subpath');
+    it('does not resolve missing dependency', async () => {
+      const wrongImport = await root.resolveImport('@run-z/wrong/subpath');
 
       expect(wrongImport.importSpec.kind).toBe('entry');
       expect(root.resolveDependency(wrongImport)).toBeNull();
     });
-    it('resolves sub-directory dependency', () => {
-      const dirImport = root.resolveImport('./src').asSubPackage()!;
+    it('resolves sub-directory dependency', async () => {
+      const dirImport = (await root.resolveImport('./src')).asSubPackage()!;
 
       expect(dirImport.importSpec).toEqual({
         kind: 'path',
@@ -177,8 +177,8 @@ describe('NodePackageFS', () => {
       });
       expect(dirImport.host).toBe(root);
     });
-    it('resolves sub-directory dependency with trailing slash', () => {
-      const dirImport = root.resolveImport('./src/').asSubPackage()!;
+    it('resolves sub-directory dependency with trailing slash', async () => {
+      const dirImport = (await root.resolveImport('./src/')).asSubPackage()!;
 
       expect(dirImport.importSpec).toEqual({
         kind: 'path',
@@ -202,18 +202,18 @@ describe('NodePackageFS', () => {
     beforeEach(async () => {
       const root = await resolveRootPackage(fs);
 
-      resolution = root.resolveImport('\0synthetic');
+      resolution = await root.resolveImport('\0synthetic');
     });
 
-    it('resolves package', () => {
-      const pkgImport = resolution.resolveImport('typescript');
+    it('resolves package', async () => {
+      const pkgImport = await resolution.resolveImport('typescript');
 
       expect(pkgImport.importSpec.kind).toBe('package');
     });
-    it('resolves file URL', () => {
+    it('resolves file URL', async () => {
       const req = createRequire(import.meta.url);
       const url = pathToFileURL(req.resolve('typescript')).href;
-      const urlImport = resolution.resolveImport(url);
+      const urlImport = await resolution.resolveImport(url);
 
       expect(urlImport.importSpec.kind).toBe('uri');
     });

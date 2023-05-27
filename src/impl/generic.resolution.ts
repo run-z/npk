@@ -13,8 +13,8 @@ export class Generic$Resolution extends Import$Resolution<Import> {
     this.#resolver = resolver;
   }
 
-  override resolveImport(spec: Import | string): ImportResolution {
-    return this.#resolver.resolve(recognizeImport(spec));
+  override async resolveImport(spec: Import | string): Promise<ImportResolution> {
+    return await this.#resolver.resolve(recognizeImport(spec));
   }
 
 }

@@ -14,20 +14,20 @@ export class URI$Resolution extends Import$Resolution<Import.URI> {
     this.#resolver = resolver;
   }
 
-  override resolveImport(spec: Import | string): ImportResolution {
+  override async resolveImport(spec: Import | string): Promise<ImportResolution> {
     spec = recognizeImport(spec);
 
     switch (spec.kind) {
       case 'uri':
-        return this.#resolveURIImport(spec.spec);
+        return await this.#resolveURIImport(spec.spec);
       case 'path':
-        return this.#resolveURIImport(spec.uri);
+        return await this.#resolveURIImport(spec.uri);
       default:
-        return this.#resolver.resolve(spec);
+        return await this.#resolver.resolve(spec);
     }
   }
 
-  #resolveURIImport(path: string): ImportResolution {
+  async #resolveURIImport(path: string): Promise<ImportResolution> {
     return this.#resolver.resolveURI(uriToImport(new URL(path, this.uri)));
   }
 

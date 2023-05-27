@@ -38,7 +38,7 @@ export abstract class Import$Resolution<TImport extends Import>
     return this.#importSpec;
   }
 
-  abstract resolveImport(spec: Import | string): ImportResolution;
+  abstract resolveImport(spec: Import | string): Promise<ImportResolution>;
 
   resolveDependency(on: ImportResolution): ImportDependency | null {
     if (on.uri === this.uri) {
