@@ -17,14 +17,15 @@ describe('NodePackageFS', () => {
     fs = new NodePackageFS();
   });
 
-  it('constructed by path', () => {
-    expect(new NodePackageFS('.').root).toBe(pathToFileURL('.').href);
-  });
+  describe('create', () => {
+    it('create fs by path', () => {
+      expect(new NodePackageFS('.').root).toBe(pathToFileURL('.').href);
+    });
+    it('creates fs by file URL', () => {
+      const root = pathToFileURL('.').href;
 
-  it('constructed by file URL', () => {
-    const root = pathToFileURL('.').href;
-
-    expect(new NodePackageFS(root).root).toBe(root);
+      expect(new NodePackageFS(root).root).toBe(root);
+    });
   });
 
   describe('recognizePackageURI', () => {
@@ -42,13 +43,15 @@ describe('NodePackageFS', () => {
   });
 
   describe('loadPackage', () => {
-    it('ignores non-file package.json', () => {
-      expect(fs.loadPackage(pathToFileURL(path.resolve('testing')).href)).toBeUndefined();
+    it('ignores non-file package.json', async () => {
+      await expect(
+        fs.loadPackage(pathToFileURL(path.resolve('testing')).href),
+      ).resolves.toBeUndefined();
     });
-    it('ignores incomplete package.json', () => {
-      expect(
+    it('ignores incomplete package.json', async () => {
+      await expect(
         fs.loadPackage(pathToFileURL(path.resolve('testing/wrong-package')).href),
-      ).toBeUndefined();
+      ).resolves.toBeUndefined();
     });
   });
 

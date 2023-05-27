@@ -148,8 +148,8 @@ export class VirtualPackageFS extends PackageFS {
     return importSpec.scheme === 'package' ? importSpec.spec : undefined;
   }
 
-  override loadPackage(uri: string): PackageInfo | undefined {
-    return this.#byURI.get(uri)?.packageInfo;
+  override loadPackage(uri: string): Promise<PackageInfo | undefined> {
+    return Promise.resolve(this.#byURI.get(uri)?.packageInfo);
   }
 
   override parentDir(uri: string): string | undefined {
@@ -173,7 +173,11 @@ export class VirtualPackageFS extends PackageFS {
     return this.#toPackageURI(new URL(path, this.#toHttpURL(relativeTo.resolutionBaseURI)));
   }
 
-  override resolveName(relativeTo: PackageResolution, name: string): string | undefined {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  override async resolveName(
+    relativeTo: PackageResolution,
+    name: string,
+  ): Promise<string | undefined> {
     const {
       packageInfo: { packageJson },
     } = relativeTo;

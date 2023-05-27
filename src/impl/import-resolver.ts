@@ -1,4 +1,3 @@
-import { PackageDir } from '../fs/package-dir.js';
 import { PackageFS } from '../fs/package-fs.js';
 import { PackageJson } from '../package/package.json.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
@@ -152,11 +151,14 @@ export class ImportResolver {
     { name, subpath }: Import.Package | Import.Entry,
   ): Promise<ImportResolution | undefined> {
     const {
-      packageInfo: { packageJson },
+      packageInfo: {
+        packageJson: { dependencies, devDependencies, peerDependencies },
+      },
     } = host;
     const dep =
-      this.#findByName(name, packageJson.dependencies)
-      ?? this.#findByName(name, packageJson.devDependencies)
+      this.#findByName(name, dependencies)
+      ?? this.#findByName(name, peerDependencies)
+      ?? this.#findByName(name, devDependencies)
       ?? (await this.#resolveDepOf(host, name));
 
     if (!dep || !subpath) {
@@ -200,7 +202,7 @@ export class ImportResolver {
       return host; // Resolve to host package.
     }
 
-    const entryPointURI = this.#fs.resolveName(host, depName);
+    const entryPointURI = await this.#fs.resolveName(host, depName);
 
     if (entryPointURI == null) {
       return undefined;
@@ -213,33 +215,28 @@ export class ImportResolver {
 
   async resolveSubPackage(spec: Import.URI): Promise<ImportResolution> {
     return await this.resolveURI(spec, async uri => {
-      const packageDir = this.#fs.findPackageDir(uri);
+      const packageDir = await this.#fs.findPackageDir(uri);
 
       if (!packageDir) {
         return;
       }
 
-      const pkg = await this.#resolvePackageByDir(packageDir);
+      const pkg = new Package$Resolution(this, packageDir.uri, packageDir.packageInfo);
 
       if (pkg.uri === uri) {
         // Package imported directly rather its subpath.
+        // Avoid recurrent call.
         return pkg;
       }
 
-      const { host } = pkg;
+      // Resolve the host first.
+      const { host } = await this.resolveURI(uriToImport(packageDir.uri), () => pkg);
 
       return (
         host
         && new PackageFile$Resolution(this, host, `./${uri.slice(host.resolutionBaseURI.length)}`)
       );
     });
-  }
-
-  async #resolvePackageByDir({ uri, packageInfo }: PackageDir): Promise<ImportResolution> {
-    return await this.resolveURI(
-      uriToImport(new URL(uri)),
-      () => new Package$Resolution(this, uri, packageInfo),
-    );
   }
 
 }

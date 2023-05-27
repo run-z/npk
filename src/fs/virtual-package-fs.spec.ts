@@ -18,11 +18,11 @@ describe('VirtualPackageFS', () => {
       fs.addPackage('package:test', { name: 'test', version: '1.0.0' });
       root = await resolveRootPackage(fs);
 
-      expect(fs.resolveName(root, 'test')).toBe('package:test');
+      await expect(fs.resolveName(root, 'test')).resolves.toBe('package:test');
 
       fs.addPackage('package:test@biz', { name: 'test', version: '1.0.0' });
 
-      expect(fs.resolveName(root, 'test')).toBe('package:test@biz');
+      await expect(fs.resolveName(root, 'test')).resolves.toBe('package:test@biz');
     });
     it('replaces package at the same URI', async () => {
       fs.addRoot({
@@ -33,20 +33,20 @@ describe('VirtualPackageFS', () => {
       fs.addPackage('package:test', { name: 'test', version: '1.0.0' });
       root = await resolveRootPackage(fs);
 
-      expect(fs.resolveName(root, 'test')).toBe('package:test');
+      await expect(fs.resolveName(root, 'test')).resolves.toBe('package:test');
 
       fs.addPackage('package:test', { name: 'test2', version: '1.0.0' });
 
-      expect(fs.resolveName(root, 'test2')).toBe('package:test');
-      expect(fs.resolveName(root, 'test')).toBeUndefined();
+      await expect(fs.resolveName(root, 'test2')).resolves.toBe('package:test');
+      await expect(fs.resolveName(root, 'test')).resolves.toBeUndefined();
     });
   });
 
   describe('resolveName', () => {
-    it('does not resolve missing dependency', () => {
+    it('does not resolve missing dependency', async () => {
       fs.addPackage(root.uri, { name: 'root', version: '1.0.0', dependencies: { test: '1.0.0' } });
 
-      expect(fs.resolveName(root, 'test2')).toBeUndefined();
+      await expect(fs.resolveName(root, 'test2')).resolves.toBeUndefined();
     });
   });
 

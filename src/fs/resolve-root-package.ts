@@ -16,18 +16,16 @@ import { PackageFS } from './package-fs.js';
  */
 
 export async function resolveRootPackage(dirOrFS?: string | PackageFS): Promise<PackageResolution> {
-  const fs = dirOrFS == null || typeof dirOrFS === 'string' ? new NodePackageFS(dirOrFS) : dirOrFS;
+  const fs = dirOrFS == null || typeof dirOrFS === 'string' ? new NodePackageFS() : dirOrFS;
 
-  const rootPackageInfo = fs.loadPackage(fs.root);
+  const rootPackageInfo = await fs.loadPackage(fs.root);
 
   if (!rootPackageInfo) {
     throw new ReferenceError(`No "package.json" file found at <${fs.root}>`);
   }
 
-  return Promise.resolve(
-    new ImportResolver({
-      createRoot: resolver => new Package$Resolution(resolver, fs.root, rootPackageInfo),
-      fs,
-    }).root.asPackage()!,
-  );
+  return new ImportResolver({
+    createRoot: resolver => new Package$Resolution(resolver, fs.root, rootPackageInfo),
+    fs,
+  }).root.asPackage()!;
 }

@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import process from 'node:process';
@@ -41,7 +41,11 @@ export class NodePackageFS extends PackageFS {
     return importSpec.scheme === 'file' ? importSpec.spec : undefined;
   }
 
-  override resolveName(relativeTo: PackageResolution, name: string): string | undefined {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  override async resolveName(
+    relativeTo: PackageResolution,
+    name: string,
+  ): Promise<string | undefined> {
     const requireModule = createRequire(
       relativeTo.resolutionBaseURI + 'index.js' /* in case of package directory */,
     );
@@ -56,19 +60,21 @@ export class NodePackageFS extends PackageFS {
     return pathToFileURL(modulePath).href;
   }
 
-  override loadPackage(uri: string): PackageInfo | undefined {
+  override async loadPackage(uri: string): Promise<PackageInfo | undefined> {
     const dir = fileURLToPath(uri);
     const filePath = path.join(dir, 'package.json');
 
     try {
-      if (!fs.statSync(filePath).isFile()) {
+      const stats = await fs.stat(filePath);
+
+      if (!stats.isFile()) {
         return;
       }
     } catch {
       return;
     }
 
-    const packageJson = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as PackageJson;
+    const packageJson = JSON.parse(await fs.readFile(filePath, 'utf-8')) as PackageJson;
 
     return isValidPackageJson(packageJson) ? new PackageInfo(packageJson) : undefined;
   }

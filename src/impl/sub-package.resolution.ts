@@ -50,7 +50,7 @@ export abstract class SubPackage$Resolution<TImport extends Import.SubPackage>
     const packageURI = this.#resolver.fs.recognizePackageURI(spec);
 
     if (packageURI != null) {
-      return this.#resolvePath(spec.spec);
+      return await this.#resolvePath(packageURI);
     }
 
     // Non-package URI.
