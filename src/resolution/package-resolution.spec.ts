@@ -268,14 +268,20 @@ describe('PackageResolution', () => {
       });
     });
     it('resolves transient runtime dependency', async () => {
-      fs.addRoot({ name: 'root', version: '1.0.0', dependencies: { dep: 'workspace:^1.0.0' } });
+      fs.addRoot({ name: 'root', version: '1.0.0', dependencies: { via: '^1.0.0' } });
+      fs.addPackage({
+        name: 'via',
+        version: '1.0.0',
+        dependencies: { dep: '^1.0.0' },
+      });
       fs.addPackage({ name: 'dep', version: '1.0.0' });
 
       root = await resolveRootPackage(fs);
 
-      const dep = (await root.resolveImport('dep')).asPackage()!;
+      const via = (await root.resolveImport('via/some')).asSubPackage()!;
+      const dep = (await via.resolveImport('dep/other')).asSubPackage()!;
 
-      expect(root.resolveDependency(dep)).toEqual({
+      expect(root.resolveDependency(dep, { via })).toEqual({
         kind: 'runtime',
         on: dep,
       });

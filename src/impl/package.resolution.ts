@@ -16,7 +16,7 @@ export class Package$Resolution
 
   readonly #resolutionBaseURI: string;
   readonly #packageInfo: PackageInfo;
-  readonly #dependencies = new Map<string, ImportDependency | false>();
+  readonly #dependencies = new Map<string, SubPackageDependency | false>();
 
   constructor(
     resolver: ImportResolver,
@@ -85,21 +85,26 @@ export class Package$Resolution
     const dep =
       this.#findDep(host, dependencies, 'runtime')
       || this.#findDep(host, peerDependencies, 'peer')
-      || this.#findDep(host, devDependencies, 'dev')
-      || this.#findTransientDep(host, request?.via);
+      || this.#findDep(host, devDependencies, 'dev');
 
-    if (!request?.via || request?.via === this) {
+    if (request?.via && request.via !== this) {
+      if (!dep) {
+        const transientDep = this.#findTransientDep(on, host, request?.via);
+
+        return transientDep;
+      }
+    } else {
       this.#dependencies.set(host.uri, dep ?? false);
     }
 
-    return dep;
+    return dep && { kind: dep.kind, on };
   }
 
   #findDep(
     on: PackageResolution,
     dependencies: PackageJson.Dependencies | undefined,
     kind: SubPackageDependency['kind'],
-  ): ImportDependency | null {
+  ): SubPackageDependency | null {
     if (!dependencies) {
       return null;
     }
@@ -115,13 +120,10 @@ export class Package$Resolution
   }
 
   #findTransientDep(
-    on: PackageResolution,
-    via: ImportResolution | undefined,
+    on: SubPackageResolution,
+    host: PackageResolution,
+    via: ImportResolution,
   ): ImportDependency | null {
-    if (!via) {
-      return null;
-    }
-
     const interimDep = this.resolveDependency(via);
 
     if (!interimDep) {
@@ -129,7 +131,7 @@ export class Package$Resolution
     }
 
     const { kind, on: interim } = interimDep;
-    const dep = interim.resolveDependency(on);
+    const dep = interim.resolveDependency(host);
 
     if (dep) {
       switch (kind) {
@@ -138,16 +140,9 @@ export class Package$Resolution
         case 'peer':
           return { kind, on };
         // istanbul ignore next
-        case 'implied':
-        // istanbul ignore next
-        // eslint-disable-next-line no-fallthrough
-        case 'synthetic':
+        default:
           // istanbul ignore next
-          return interimDep;
-        // istanbul ignore next
-        case 'self':
-          // istanbul ignore next
-          return dep;
+          return null;
       }
     }
 
@@ -180,8 +175,4 @@ function packageImportSpec(
     local: localName,
     subpath: undefined,
   };
-}
-
-export interface Package$Resolution extends PackageResolution {
-  asImpliedResolution(): undefined;
 }
