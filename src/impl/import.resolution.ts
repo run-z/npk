@@ -1,3 +1,4 @@
+import { PackageFS } from '../fs/package-fs.js';
 import { AmbientDependency, ImportDependency } from '../resolution/import-dependency.js';
 import { ImportDependencyRequest, ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
@@ -16,6 +17,10 @@ export abstract class Import$Resolution<TImport extends Import>
     this.#resolver = resolver;
     this.#uri = uri;
     this.#importSpec = importSpec;
+  }
+
+  get fs(): PackageFS {
+    return this.#resolver.fs;
   }
 
   get root(): ImportResolution {

@@ -1,3 +1,4 @@
+import { PackageFS } from '../fs/package-fs.js';
 import { ImportDependency } from './import-dependency.js';
 import { Import } from './import.js';
 import { PackageResolution } from './package-resolution.js';
@@ -11,6 +12,11 @@ import { SubPackageResolution } from './sub-package-resolution.js';
  * @typeParam TImport - Type of import specifier.
  */
 export interface ImportResolution<out TImport extends Import = Import> {
+  /**
+   * Package file system.
+   */
+  get fs(): PackageFS;
+
   /**
    * Root module resolution.
    *

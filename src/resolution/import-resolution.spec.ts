@@ -22,6 +22,13 @@ describe('ImportResolution', () => {
       resolution = await root.resolveImport('http://localhost/pkg/test?ver=2.0.0');
     });
 
+    describe('fs', () => {
+      it('is set to package FS', () => {
+        expect(root.fs).toBe(fs);
+        expect(resolution.fs).toBe(fs);
+      });
+    });
+
     describe('resolutionBaseURI', () => {
       it('the same as URI', () => {
         expect(resolution.resolutionBaseURI).toBe(resolution.uri);
