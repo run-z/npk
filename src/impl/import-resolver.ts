@@ -160,7 +160,8 @@ export class ImportResolver {
   ): Promise<ImportResolution | undefined> {
     const {
       packageInfo: {
-        packageJson: { dependencies, devDependencies, peerDependencies },
+        peerDependencies,
+        packageJson: { dependencies, devDependencies },
       },
     } = host;
     const dep =

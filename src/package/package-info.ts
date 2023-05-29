@@ -35,6 +35,7 @@ export class PackageInfo {
   #nameParts?: [localName: string, scope?: `@${string}`];
   #entryPoints?: PackageInfo$EntryPoints;
   #mainEntryPoint?: PackageEntryPoint;
+  #peerDependencies?: PackageJson.Dependencies;
 
   /**
    * Constructs package info.
@@ -133,6 +134,41 @@ export class PackageInfo {
    */
   get mainEntryPoint(): PackageEntryPoint | undefined {
     return (this.#mainEntryPoint ??= this.findEntryPoint('.')?.entryPoint);
+  }
+
+  /**
+   * Available peer dependencies.
+   *
+   * Includes {@link PackageJson#peerDependencies peer dependencies} that also installed as
+   * {@link PackageJson#devDependencies dev dependencies}.
+   */
+  get peerDependencies(): PackageJson.Dependencies {
+    if (this.#peerDependencies) {
+      return this.#peerDependencies;
+    }
+
+    const { devDependencies, peerDependencies } = this.packageJson;
+
+    if (!peerDependencies || !devDependencies) {
+      // No installed peer dependencies.
+      return (this.#peerDependencies = {});
+    }
+
+    // Detect uninstalled peer dependencies.
+    const uninstalledDeps: Record<string, string> = { ...peerDependencies };
+
+    for (const devDep of Object.keys(devDependencies)) {
+      delete uninstalledDeps[devDep];
+    }
+
+    // Select only installed peer dependencies, as the rest of them can not be resolved.
+    const installedDeps: Record<string, string> = { ...peerDependencies };
+
+    for (const uninstalledDep of Object.keys(uninstalledDeps)) {
+      delete installedDeps[uninstalledDep];
+    }
+
+    return (this.#peerDependencies = installedDeps);
   }
 
   /**

@@ -16,7 +16,6 @@ export class Package$Resolution
   readonly #resolutionBaseURI: string;
   readonly #packageInfo: PackageInfo;
   readonly #dependencies = new Map<string, PackageDep | false>();
-  #peerDependencies?: PackageJson.Dependencies;
 
   constructor(
     resolver: ImportResolver,
@@ -46,35 +45,6 @@ export class Package$Resolution
     return this.#packageInfo;
   }
 
-  #getPeerDependencies(): PackageJson.Dependencies {
-    if (this.#peerDependencies) {
-      return this.#peerDependencies;
-    }
-
-    const { devDependencies, peerDependencies } = this.packageInfo.packageJson;
-
-    if (!peerDependencies || !devDependencies) {
-      // No installed peer dependencies.
-      return (this.#peerDependencies = {});
-    }
-
-    // Detect uninstalled peer dependencies.
-    const uninstalledDeps: Record<string, string> = { ...peerDependencies };
-
-    for (const devDep of Object.keys(devDependencies)) {
-      delete uninstalledDeps[devDep];
-    }
-
-    // Select only installed peer dependencies, as the rest of them can not be resolved.
-    const installedDeps: Record<string, string> = { ...peerDependencies };
-
-    for (const uninstalledDep of Object.keys(uninstalledDeps)) {
-      delete installedDeps[uninstalledDep];
-    }
-
-    return (this.#peerDependencies = installedDeps);
-  }
-
   override resolveDependency(another: ImportResolution): ImportDependency | null {
     const importDependency = super.resolveDependency(another);
 
@@ -96,11 +66,14 @@ export class Package$Resolution
       return knownDep ? { kind: knownDep.kind, on } : null;
     }
 
-    const { dependencies, devDependencies } = this.packageInfo.packageJson;
+    const {
+      peerDependencies,
+      packageJson: { dependencies, devDependencies },
+    } = this.packageInfo;
 
     const dep =
       this.#findDep(host, dependencies, 'runtime')
-      || this.#findDep(host, this.#getPeerDependencies(), 'peer')
+      || this.#findDep(host, peerDependencies, 'peer')
       || this.#findDep(host, devDependencies, 'dev');
 
     this.#dependencies.set(host.uri, dep ? dep : false);
