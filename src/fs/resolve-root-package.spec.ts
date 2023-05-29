@@ -13,7 +13,8 @@ describe('resolveRootPackage', () => {
   });
   it('obtains current package by default', async () => {
     const root = await resolveRootPackage();
+    const packageInfo = await PackageInfo.load();
 
-    expect(root.packageInfo.name).toBe(PackageInfo.loadSync().name);
+    expect(root.packageInfo.packageJson).toEqual(packageInfo.packageJson);
   });
 });

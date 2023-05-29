@@ -21,14 +21,6 @@ describe('PackageInfo', () => {
     });
   });
 
-  describe('loadSync', () => {
-    it('loads package info synchronously', () => {
-      const info = PackageInfo.loadSync();
-
-      expect(info.packageJson.name).toBe('@run-z/npk');
-    });
-  });
-
   describe('name', () => {
     it('defaults to -', () => {
       expect(new PackageInfo({}).name).toBe('-');

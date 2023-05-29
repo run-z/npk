@@ -13,18 +13,21 @@ import { resolveRootPackage } from './resolve-root-package.js';
 describe('NodePackageFS', () => {
   let fs: NodePackageFS;
 
-  beforeEach(() => {
-    fs = new NodePackageFS();
+  beforeEach(async () => {
+    fs = await NodePackageFS.create();
   });
 
   describe('create', () => {
-    it('create fs by path', () => {
-      expect(new NodePackageFS('.').root).toBe(pathToFileURL('.').href);
-    });
-    it('creates fs by file URL', () => {
-      const root = pathToFileURL('.').href;
+    it('create fs by path', async () => {
+      const fs = await NodePackageFS.create('.');
 
-      expect(new NodePackageFS(root).root).toBe(root);
+      expect(fs.root).toBe(pathToFileURL('.').href);
+    });
+    it('creates fs by file URL', async () => {
+      const root = pathToFileURL('.').href;
+      const fs = await NodePackageFS.create(root);
+
+      expect(fs.root).toBe(root);
     });
   });
 
