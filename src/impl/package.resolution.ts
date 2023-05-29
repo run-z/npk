@@ -88,7 +88,9 @@ export class Package$Resolution
       || this.#findDep(host, devDependencies, 'dev')
       || this.#findTransientDep(host, request?.via);
 
-    this.#dependencies.set(host.uri, dep ?? false);
+    if (!request?.via || request?.via === this) {
+      this.#dependencies.set(host.uri, dep ?? false);
+    }
 
     return dep;
   }
