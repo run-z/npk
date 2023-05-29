@@ -267,6 +267,25 @@ describe('PackageResolution', () => {
         on: dep,
       });
     });
+    it('resolves transient runtime dependency', async () => {
+      fs.addRoot({ name: 'root', version: '1.0.0', dependencies: { via: '^1.0.0' } });
+      fs.addPackage({
+        name: 'via',
+        version: '1.0.0',
+        dependencies: { dep: '^1.0.0' },
+      });
+      fs.addPackage({ name: 'dep', version: '1.0.0' });
+
+      root = await resolveRootPackage(fs);
+
+      const via = (await root.resolveImport('via/some')).asSubPackage()!;
+      const dep = (await via.resolveImport('dep/other')).asSubPackage()!;
+
+      expect(root.resolveDependency(dep, { via })).toEqual({
+        kind: 'runtime',
+        on: dep,
+      });
+    });
     it('resolves dev dependency', async () => {
       fs.addRoot({
         name: 'root',
@@ -280,6 +299,29 @@ describe('PackageResolution', () => {
       const dep = (await root.resolveImport('dep')).asPackage()!;
 
       expect(root.resolveDependency(dep)).toEqual({
+        kind: 'dev',
+        on: dep,
+      });
+    });
+    it('resolves transient dev dependency', async () => {
+      fs.addRoot({
+        name: 'root',
+        version: '1.0.0',
+        devDependencies: { via: '^1.0.0' },
+      });
+      fs.addPackage({
+        name: 'via',
+        version: '1.0.0',
+        dependencies: { dep: '^1.0.0' },
+      });
+      fs.addPackage({ name: 'dep', version: '1.0.0' });
+
+      root = await resolveRootPackage(fs);
+
+      const via = (await root.resolveImport('via')).asPackage()!;
+      const dep = (await via.resolveImport('dep')).asPackage()!;
+
+      expect(root.resolveDependency(dep, { via })).toEqual({
         kind: 'dev',
         on: dep,
       });
@@ -298,6 +340,26 @@ describe('PackageResolution', () => {
       const dep = (await root.resolveImport('dep')).asPackage()!;
 
       expect(root.resolveDependency(dep)).toEqual({
+        kind: 'peer',
+        on: dep,
+      });
+    });
+    it('resolves transient peer dependency', async () => {
+      fs.addRoot({
+        name: 'root',
+        version: '1.0.0',
+        peerDependencies: { via: '1.0.0' },
+        devDependencies: { via: '1.0.0' },
+      });
+      fs.addPackage({ name: 'via', version: '1.0.0', devDependencies: { dep: '^1.0.0' } });
+      fs.addPackage({ name: 'dep', version: '1.0.0' });
+
+      root = await resolveRootPackage(fs);
+
+      const via = (await root.resolveImport('via')).asPackage()!;
+      const dep = (await via.resolveImport('dep')).asPackage()!;
+
+      expect(root.resolveDependency(dep, { via })).toEqual({
         kind: 'peer',
         on: dep,
       });
@@ -359,6 +421,30 @@ describe('PackageResolution', () => {
       const dep = await root.resolveImport('dep');
 
       expect(root.resolveDependency(dep)).toBeNull();
+    });
+    it('does not resolve missing transient dependency', async () => {
+      fs.addRoot({ name: 'root', version: '1.0.0', dependencies: { via: '^1.0.0' } });
+      fs.addPackage({ name: 'via', version: '1.0.0' });
+      fs.addPackage({ name: 'dep', version: '2.0.0' });
+
+      root = await resolveRootPackage(fs);
+
+      const via = (await root.resolveImport('via')).asPackage()!;
+      const dep = (await root.resolveImport('package:dep/2.0.0')).asPackage()!;
+
+      expect(root.resolveDependency(dep, { via })).toBeNull();
+    });
+    it('does not resolve via missing interim dependency', async () => {
+      fs.addRoot({ name: 'root', version: '1.0.0' });
+      fs.addPackage({ name: 'via', version: '1.0.0', dependencies: { dep: '^2.0.0' } });
+      fs.addPackage({ name: 'dep', version: '2.0.0' });
+
+      root = await resolveRootPackage(fs);
+
+      const via = (await root.resolveImport('package:via/1.0.0')).asPackage()!;
+      const dep = (await root.resolveImport('package:dep/2.0.0')).asPackage()!;
+
+      expect(root.resolveDependency(dep, { via })).toBeNull();
     });
   });
 });

@@ -1,10 +1,10 @@
 import { type PackageInfo } from '../package/package-info.js';
 import { type PackageJson } from '../package/package.json.js';
 import { ImportDependency, SubPackageDependency } from '../resolution/import-dependency.js';
-import { ImportResolution } from '../resolution/import-resolution.js';
+import { ImportDependencyRequest, ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
-import { recognizeImport } from '../resolution/recognize-import.js';
+import { SubPackageResolution } from '../resolution/sub-package-resolution.js';
 import { dirURI } from './dir-uri.js';
 import { ImportResolver } from './import-resolver.js';
 import { parseRange } from './parse-range.js';
@@ -16,14 +16,13 @@ export class Package$Resolution
 
   readonly #resolutionBaseURI: string;
   readonly #packageInfo: PackageInfo;
-  readonly #dependencies = new Map<string, PackageDep | false>();
-  #peerDependencies?: PackageJson.Dependencies;
+  readonly #dependencies = new Map<string, SubPackageDependency | false>();
 
   constructor(
     resolver: ImportResolver,
     uri: string,
     packageInfo: PackageInfo,
-    importSpec: Import.Package = packageImportSpec(packageInfo),
+    importSpec: Import.Package = packageImportSpec(resolver, packageInfo),
   ) {
     super(resolver, uri, importSpec);
 
@@ -47,85 +46,107 @@ export class Package$Resolution
     return this.#packageInfo;
   }
 
-  #getPeerDependencies(): PackageJson.Dependencies {
-    if (this.#peerDependencies) {
-      return this.#peerDependencies;
-    }
-
-    const { devDependencies, peerDependencies } = this.packageInfo.packageJson;
-
-    if (!peerDependencies || !devDependencies) {
-      // No installed peer dependencies.
-      return (this.#peerDependencies = {});
-    }
-
-    // Detect uninstalled peer dependencies.
-    const uninstalledDeps: Record<string, string> = { ...peerDependencies };
-
-    for (const devDep of Object.keys(devDependencies)) {
-      delete uninstalledDeps[devDep];
-    }
-
-    // Select only installed peer dependencies, as the rest of them can not be resolved.
-    const installedDeps: Record<string, string> = { ...peerDependencies };
-
-    for (const uninstalledDep of Object.keys(uninstalledDeps)) {
-      delete installedDeps[uninstalledDep];
-    }
-
-    return (this.#peerDependencies = installedDeps);
-  }
-
-  override resolveDependency(another: ImportResolution): ImportDependency | null {
-    const importDependency = super.resolveDependency(another);
+  override resolveDependency(
+    on: ImportResolution,
+    request?: ImportDependencyRequest,
+  ): ImportDependency | null {
+    const importDependency = super.resolveDependency(on, request);
 
     if (importDependency) {
       return importDependency;
     }
 
     // Find dependency on host package.
-    const on = another.asSubPackage();
+    const subPackage = on.asSubPackage();
 
-    if (!on) {
+    if (!subPackage) {
       return null;
     }
 
+    return this.#resolveSubPackageDep(subPackage, request);
+  }
+
+  #resolveSubPackageDep(
+    on: SubPackageResolution,
+    request?: ImportDependencyRequest,
+  ): ImportDependency | null {
     const { host } = on;
     const knownDep = this.#dependencies.get(host.uri);
 
     if (knownDep != null) {
-      return knownDep ? { kind: knownDep.kind, on } : null;
+      return knownDep || null;
     }
 
-    const { dependencies, devDependencies } = this.packageInfo.packageJson;
+    const {
+      peerDependencies,
+      packageJson: { dependencies, devDependencies },
+    } = this.packageInfo;
 
     const dep =
       this.#findDep(host, dependencies, 'runtime')
-      || this.#findDep(host, this.#getPeerDependencies(), 'peer')
+      || this.#findDep(host, peerDependencies, 'peer')
       || this.#findDep(host, devDependencies, 'dev');
 
-    this.#dependencies.set(host.uri, dep ? dep : false);
+    if (request?.via && request.via !== this) {
+      if (!dep) {
+        const transientDep = this.#findTransientDep(on, host, request?.via);
+
+        return transientDep;
+      }
+    } else {
+      this.#dependencies.set(host.uri, dep ?? false);
+    }
 
     return dep && { kind: dep.kind, on };
   }
 
   #findDep(
-    pkg: PackageResolution,
+    on: PackageResolution,
     dependencies: PackageJson.Dependencies | undefined,
     kind: SubPackageDependency['kind'],
-  ): PackageDep | null {
+  ): SubPackageDependency | null {
     if (!dependencies) {
       return null;
     }
 
-    const { name, version } = pkg.packageInfo;
+    const { name, version } = on.packageInfo;
     const range = parseRange(dependencies[name]);
 
     if (!range?.test(version)) {
       return null;
     }
 
-    return { kind, on: pkg };
+    return { kind, on };
+  }
+
+  #findTransientDep(
+    on: SubPackageResolution,
+    host: PackageResolution,
+    via: ImportResolution,
+  ): ImportDependency | null {
+    const interimDep = this.resolveDependency(via);
+
+    if (!interimDep) {
+      return null;
+    }
+
+    const { kind, on: interim } = interimDep;
+    const dep = interim.resolveDependency(host);
+
+    if (dep) {
+      switch (kind) {
+        case 'dev':
+        case 'runtime':
+        case 'peer':
+          return { kind, on };
+        // istanbul ignore next
+        default:
+          // istanbul ignore next
+          return null;
+      }
+    }
+
+    return dep;
   }
 
   override asPackage(): this {
@@ -134,8 +155,11 @@ export class Package$Resolution
 
 }
 
-function packageImportSpec({ name, scope, localName }: PackageInfo): Import.Package {
-  const spec = recognizeImport(name);
+function packageImportSpec(
+  resolver: ImportResolver,
+  { name, scope, localName }: PackageInfo,
+): Import.Package {
+  const spec = resolver.recognizeImport(name);
 
   if (spec.kind === 'package') {
     return spec;
@@ -151,13 +175,4 @@ function packageImportSpec({ name, scope, localName }: PackageInfo): Import.Pack
     local: localName,
     subpath: undefined,
   };
-}
-
-export interface Package$Resolution extends PackageResolution {
-  asImpliedResolution(): undefined;
-}
-
-interface PackageDep {
-  readonly kind: SubPackageDependency['kind'];
-  readonly on: PackageResolution;
 }

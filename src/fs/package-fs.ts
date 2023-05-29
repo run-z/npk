@@ -2,6 +2,7 @@ import { PackageInfo } from '../package/package-info.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
+import { recognizeImport } from '../resolution/recognize-import.js';
 import { PackageDir } from './package-dir.js';
 
 /**
@@ -17,6 +18,21 @@ export abstract class PackageFS {
    * URI of the root package.
    */
   abstract get root(): string;
+
+  /**
+   * Recognizes import specifier and parses it accordingly.
+   *
+   * In contrast to {@link recognizeImport}, this method may recognize imports specific to file system.
+   *
+   * By default, calls {@link recognizeImport} function.
+   *
+   * @param spec - Import specifier to recognize. May be recognized already.
+   *
+   * @returns Recognized import specifier.
+   */
+  recognizeImport(spec: string): Import {
+    return recognizeImport(spec);
+  }
 
   /**
    * Extracts package URI from compatible URI import specifier.

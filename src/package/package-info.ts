@@ -1,5 +1,3 @@
-import fs from 'node:fs';
-import fsPromises from 'node:fs/promises';
 import { PackageEntryPoint } from './package-entry-point.js';
 import { PackageEntryTargets } from './package-entry-targets.js';
 import { PackageJson, PackagePath } from './package.json.js';
@@ -28,26 +26,16 @@ export class PackageInfo {
    * @returns Promise resolved to the loaded package info.
    */
   static async load(path = 'package.json'): Promise<PackageInfo> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    return new PackageInfo(JSON.parse(await fsPromises.readFile(path, 'utf-8')));
-  }
+    const { default: fs } = await import('node:fs/promises');
 
-  /**
-   * Synchronously loads package info from `package,json` file at the given `path`.
-   *
-   * @param path - Path to `package.json` file. `package.json` by default.
-   *
-   * @returns Loaded package info.
-   */
-  static loadSync(path = 'package.json'): PackageInfo {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    return new PackageInfo(JSON.parse(fs.readFileSync(path, 'utf-8')));
+    return new PackageInfo(JSON.parse(await fs.readFile(path, 'utf-8')) as PackageJson);
   }
 
   readonly #packageJson: PackageJson.Valid;
   #nameParts?: [localName: string, scope?: `@${string}`];
   #entryPoints?: PackageInfo$EntryPoints;
   #mainEntryPoint?: PackageEntryPoint;
+  #peerDependencies?: PackageJson.Dependencies;
 
   /**
    * Constructs package info.
@@ -146,6 +134,41 @@ export class PackageInfo {
    */
   get mainEntryPoint(): PackageEntryPoint | undefined {
     return (this.#mainEntryPoint ??= this.findEntryPoint('.')?.entryPoint);
+  }
+
+  /**
+   * Available peer dependencies.
+   *
+   * Includes {@link PackageJson#peerDependencies peer dependencies} that also installed as
+   * {@link PackageJson#devDependencies dev dependencies}.
+   */
+  get peerDependencies(): PackageJson.Dependencies {
+    if (this.#peerDependencies) {
+      return this.#peerDependencies;
+    }
+
+    const { devDependencies, peerDependencies } = this.packageJson;
+
+    if (!peerDependencies || !devDependencies) {
+      // No installed peer dependencies.
+      return (this.#peerDependencies = {});
+    }
+
+    // Detect uninstalled peer dependencies.
+    const uninstalledDeps: Record<string, string> = { ...peerDependencies };
+
+    for (const devDep of Object.keys(devDependencies)) {
+      delete uninstalledDeps[devDep];
+    }
+
+    // Select only installed peer dependencies, as the rest of them can not be resolved.
+    const installedDeps: Record<string, string> = { ...peerDependencies };
+
+    for (const uninstalledDep of Object.keys(uninstalledDeps)) {
+      delete installedDeps[uninstalledDep];
+    }
+
+    return (this.#peerDependencies = installedDeps);
   }
 
   /**

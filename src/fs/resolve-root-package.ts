@@ -16,8 +16,8 @@ import { PackageFS } from './package-fs.js';
  */
 
 export async function resolveRootPackage(dirOrFS?: string | PackageFS): Promise<PackageResolution> {
-  const fs = dirOrFS == null || typeof dirOrFS === 'string' ? new NodePackageFS() : dirOrFS;
-
+  const fs =
+    dirOrFS == null || typeof dirOrFS === 'string' ? await NodePackageFS.create(dirOrFS) : dirOrFS;
   const rootPackageInfo = await fs.loadPackage(fs.root);
 
   if (!rootPackageInfo) {
