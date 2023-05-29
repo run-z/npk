@@ -55,10 +55,14 @@ export interface ImportResolution<out TImport extends Import = Import> {
    * Resolves direct dependency of the module on another one.
    *
    * @param on - The package to resolve dependency on.
+   * @param request - Optional dependency resolution request.
    *
    * @returns Either dependency descriptor, or `null` if the module does not depend on another one.
    */
-  resolveDependency(on: ImportResolution): ImportDependency | null;
+  resolveDependency(
+    on: ImportResolution,
+    request?: ImportDependencyRequest,
+  ): ImportDependency | null;
 
   /**
    * Represents this module resolution as package resolution, if possible.
@@ -73,4 +77,17 @@ export interface ImportResolution<out TImport extends Import = Import> {
    * @returns `this` instance for sub-package or package resolution, or `undefined` otherwise.
    */
   asSubPackage(): SubPackageResolution | undefined;
+}
+
+/**
+ * {@link ImportResolution#resolveDependency Dependency resolution} request.
+ */
+export interface ImportDependencyRequest {
+  /**
+   * Intermediate module resolution for transitive dependency check.
+   *
+   * If target dependency is not found among direct dependencies, it can be search as a dependency of intermediate
+   * one. Then, the result would be base on how this module resolution depends on intermediate one.
+   */
+  readonly via?: ImportResolution | undefined;
 }

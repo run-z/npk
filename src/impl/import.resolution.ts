@@ -1,5 +1,5 @@
 import { AmbientDependency, ImportDependency } from '../resolution/import-dependency.js';
-import { ImportResolution } from '../resolution/import-resolution.js';
+import { ImportDependencyRequest, ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
 import { SubPackageResolution } from '../resolution/sub-package-resolution.js';
@@ -40,7 +40,10 @@ export abstract class Import$Resolution<TImport extends Import>
 
   abstract resolveImport(spec: Import | string): Promise<ImportResolution>;
 
-  resolveDependency(on: ImportResolution): ImportDependency | null {
+  resolveDependency(
+    on: ImportResolution,
+    request?: ImportDependencyRequest,
+  ): ImportDependency | null {
     if (on.uri === this.uri) {
       // Import itself.
       return { kind: 'self', on };
@@ -56,7 +59,7 @@ export abstract class Import$Resolution<TImport extends Import>
 
       if (host.uri !== this.uri) {
         // Resolve host package dependency instead.
-        return host.resolveDependency(on);
+        return host.resolveDependency(on, request);
       }
     }
 
