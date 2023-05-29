@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import { createRequire } from 'node:module';
 import path from 'node:path';
+import win32 from 'node:path/win32';
 import { pathToFileURL } from 'node:url';
-import { FS_ROOT } from '../impl/fs-root.js';
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
@@ -31,6 +31,184 @@ describe('NodePackageFS', () => {
     });
   });
 
+  describe('recognizeImport', () => {
+    describe('node builtins', () => {
+      it('recognized with "node:" prefix', () => {
+        expect(fs.recognizeImport('node:fs')).toEqual({
+          kind: 'implied',
+          spec: 'node:fs',
+          from: 'node',
+        });
+      });
+      it('recognizes built-in module name', () => {
+        expect(fs.recognizeImport('fs')).toEqual({
+          kind: 'implied',
+          spec: 'fs',
+          from: 'node',
+        });
+        expect(fs.recognizeImport('path')).toEqual({
+          kind: 'implied',
+          spec: 'path',
+          from: 'node',
+        });
+      });
+      it('recognizes sub-export of built-in module', () => {
+        expect(fs.recognizeImport('fs/promises')).toEqual({
+          kind: 'implied',
+          spec: 'fs/promises',
+          from: 'node',
+        });
+        expect(fs.recognizeImport('stream/web')).toEqual({
+          kind: 'implied',
+          spec: 'stream/web',
+          from: 'node',
+        });
+      });
+      it('does not recognize wrong node built-in with "node:" prefix', () => {
+        expect(fs.recognizeImport('node:wrong-module')).toEqual({
+          kind: 'uri',
+          spec: 'node:wrong-module',
+          scheme: 'node',
+          path: 'wrong-module',
+        });
+        expect(fs.recognizeImport('node:fs/wrong-sub-module')).toEqual({
+          kind: 'uri',
+          spec: 'node:fs/wrong-sub-module',
+          scheme: 'node',
+          path: 'fs/wrong-sub-module',
+        });
+      });
+    });
+
+    describe('import paths', () => {
+      it('recognizes directory path', () => {
+        expect(fs.recognizeImport('.')).toEqual({
+          kind: 'path',
+          spec: '.',
+          isRelative: true,
+          path: '.',
+          uri: '.',
+        });
+      });
+      it('recognizes parent directory path', () => {
+        expect(fs.recognizeImport('..')).toEqual({
+          kind: 'path',
+          spec: '..',
+          isRelative: true,
+          path: '..',
+          uri: '..',
+        });
+      });
+      it('recognizes absolute unix path', () => {
+        const spec = '/test path';
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'path',
+          spec,
+          isRelative: false,
+          path: '/test%20path',
+          uri: '/test%20path',
+        });
+      });
+      it('recognizes windows path with drive letter', () => {
+        const spec = 'c:\\dir\\test path';
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'path',
+          spec,
+          isRelative: false,
+          path: `/c:/dir/test%20path`,
+          uri: `file:///c:/dir/test%20path`,
+        });
+      });
+      it('recognizes absolute windows path with drive letter', () => {
+        const spec = '\\c:\\dir\\test path';
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'path',
+          spec,
+          isRelative: false,
+          path: `/c:/dir/test%20path`,
+          uri: `file:///c:/dir/test%20path`,
+        });
+      });
+      it('recognizes absolute windows path', () => {
+        const spec = '\\\\server\\test path';
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'path',
+          spec,
+          isRelative: false,
+          path: `//%3F/UNC/server/test%20path/`,
+          uri: `file:////%3F/UNC/server/test%20path/`,
+        });
+      });
+      it('recognizes UNC windows path', () => {
+        const spec = win32.toNamespacedPath('\\\\server\\test path');
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'path',
+          spec,
+          isRelative: false,
+          path: `//%3F/UNC/server/test%20path/`,
+          uri: `file:////%3F/UNC/server/test%20path/`,
+        });
+      });
+      it('recognizes relative unix path', () => {
+        const spec = './test path?q=a';
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'path',
+          spec,
+          isRelative: true,
+          path: './test%20path?q=a',
+          uri: './test%20path?q=a',
+        });
+      });
+      it('recognizes relative windows path', () => {
+        const spec = '.\\test path';
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'path',
+          spec,
+          isRelative: true,
+          path: './test%20path',
+          uri: './test%20path',
+        });
+      });
+      it('recognizes unix path relative to parent directory', () => {
+        const spec = '../test path#q=a';
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'path',
+          spec,
+          isRelative: true,
+          path: '../test%20path#q=a',
+          uri: '../test%20path#q=a',
+        });
+      });
+      it('recognizes windows path relative to parent directory', () => {
+        const spec = '..\\test path';
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'path',
+          spec,
+          isRelative: true,
+          path: '../test%20path',
+          uri: '../test%20path',
+        });
+      });
+      it('does not recognizes invalid path', () => {
+        const spec = '...';
+
+        expect(fs.recognizeImport(spec)).toEqual({
+          kind: 'unknown',
+          spec,
+        });
+      });
+    });
+  });
+
   describe('recognizePackageURI', () => {
     it('ignores non-file URLs', () => {
       expect(
@@ -41,7 +219,7 @@ describe('NodePackageFS', () => {
 
   describe('parentDir', () => {
     it('returns undefined for root dir', () => {
-      expect(fs.parentDir(FS_ROOT.href)).toBeUndefined();
+      expect(fs.parentDir(fs.fsRoot)).toBeUndefined();
     });
   });
 

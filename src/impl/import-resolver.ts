@@ -46,6 +46,14 @@ export class ImportResolver {
     return this.#fs;
   }
 
+  recognizeImport<TImport extends Import>(spec: TImport): TImport;
+
+  recognizeImport(spec: Import | string): Import;
+
+  recognizeImport(spec: Import | string): Import {
+    return typeof spec === 'string' ? this.fs.recognizeImport(spec) : spec;
+  }
+
   async resolve(spec: Import): Promise<ImportResolution> {
     if (spec.kind === 'uri') {
       return await this.resolveURI(spec);

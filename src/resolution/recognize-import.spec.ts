@@ -1,5 +1,4 @@
 import { describe, expect, it } from '@jest/globals';
-import { win32 } from 'node:path/win32';
 import { Import } from './import.js';
 import { recognizeImport } from './recognize-import.js';
 
@@ -8,54 +7,6 @@ describe('recognizeImport', () => {
     const spec: Import = { kind: 'unknown', spec: '_path/to/file' };
 
     expect(recognizeImport(spec)).toBe(spec);
-  });
-
-  describe('node imports', () => {
-    it('recognized with "node:" prefix', () => {
-      expect(recognizeImport('node:fs')).toEqual({
-        kind: 'implied',
-        spec: 'node:fs',
-        from: 'node',
-      });
-    });
-    it('recognizes built-in module name', () => {
-      expect(recognizeImport('fs')).toEqual({
-        kind: 'implied',
-        spec: 'fs',
-        from: 'node',
-      });
-      expect(recognizeImport('path')).toEqual({
-        kind: 'implied',
-        spec: 'path',
-        from: 'node',
-      });
-    });
-    it('recognizes sub-export of built-in module', () => {
-      expect(recognizeImport('fs/promises')).toEqual({
-        kind: 'implied',
-        spec: 'fs/promises',
-        from: 'node',
-      });
-      expect(recognizeImport('stream/web')).toEqual({
-        kind: 'implied',
-        spec: 'stream/web',
-        from: 'node',
-      });
-    });
-    it('does not recognize wrong node built-in with "node:" prefix', () => {
-      expect(recognizeImport('node:wrong-module')).toEqual({
-        kind: 'uri',
-        spec: 'node:wrong-module',
-        scheme: 'node',
-        path: 'wrong-module',
-      });
-      expect(recognizeImport('node:fs/wrong-sub-module')).toEqual({
-        kind: 'uri',
-        spec: 'node:fs/wrong-sub-module',
-        scheme: 'node',
-        path: 'fs/wrong-sub-module',
-      });
-    });
   });
 
   describe('package imports', () => {
@@ -142,103 +93,26 @@ describe('recognizeImport', () => {
         uri: '..',
       });
     });
-    it('recognizes absolute unix path', () => {
+    it('recognizes absolute path', () => {
       const spec = '/test path';
 
       expect(recognizeImport(spec)).toEqual({
         kind: 'path',
         spec,
         isRelative: false,
-        path: '/test%20path',
-        uri: '/test%20path',
+        path: '/test path',
+        uri: '/test path',
       });
     });
-    it('recognizes windows path with drive letter', () => {
-      const spec = 'c:\\dir\\test path';
-
-      expect(recognizeImport(spec)).toEqual({
-        kind: 'path',
-        spec,
-        isRelative: false,
-        path: `/c:/dir/test%20path`,
-        uri: `file:///c:/dir/test%20path`,
-      });
-    });
-    it('recognizes absolute windows path with drive letter', () => {
-      const spec = '\\c:\\dir\\test path';
-
-      expect(recognizeImport(spec)).toEqual({
-        kind: 'path',
-        spec,
-        isRelative: false,
-        path: `/c:/dir/test%20path`,
-        uri: `file:///c:/dir/test%20path`,
-      });
-    });
-    it('recognizes absolute windows path', () => {
-      const spec = '\\\\server\\test path';
-
-      expect(recognizeImport(spec)).toEqual({
-        kind: 'path',
-        spec,
-        isRelative: false,
-        path: `//%3F/UNC/server/test%20path/`,
-        uri: `file:////%3F/UNC/server/test%20path/`,
-      });
-    });
-    it('recognizes UNC windows path', () => {
-      const spec = win32.toNamespacedPath('\\\\server\\test path');
-
-      expect(recognizeImport(spec)).toEqual({
-        kind: 'path',
-        spec,
-        isRelative: false,
-        path: `//%3F/UNC/server/test%20path/`,
-        uri: `file:////%3F/UNC/server/test%20path/`,
-      });
-    });
-    it('recognizes relative unix path', () => {
+    it('recognizes relative path', () => {
       const spec = './test path?q=a';
 
       expect(recognizeImport(spec)).toEqual({
         kind: 'path',
         spec,
         isRelative: true,
-        path: './test%20path?q=a',
-        uri: './test%20path?q=a',
-      });
-    });
-    it('recognizes relative windows path', () => {
-      const spec = '.\\test path';
-
-      expect(recognizeImport(spec)).toEqual({
-        kind: 'path',
-        spec,
-        isRelative: true,
-        path: './test%20path',
-        uri: './test%20path',
-      });
-    });
-    it('recognizes unix path relative to parent directory', () => {
-      const spec = '../test path#q=a';
-
-      expect(recognizeImport(spec)).toEqual({
-        kind: 'path',
-        spec,
-        isRelative: true,
-        path: '../test%20path#q=a',
-        uri: '../test%20path#q=a',
-      });
-    });
-    it('recognizes windows path relative to parent directory', () => {
-      const spec = '..\\test path';
-
-      expect(recognizeImport(spec)).toEqual({
-        kind: 'path',
-        spec,
-        isRelative: true,
-        path: '../test%20path',
-        uri: '../test%20path',
+        path: './test path?q=a',
+        uri: './test path?q=a',
       });
     });
   });

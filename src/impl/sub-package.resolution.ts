@@ -1,7 +1,6 @@
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
-import { recognizeImport } from '../resolution/recognize-import.js';
 import { SubPackageResolution } from '../resolution/sub-package-resolution.js';
 import { ImportResolver } from './import-resolver.js';
 import { Import$Resolution } from './import.resolution.js';
@@ -24,7 +23,7 @@ export abstract class SubPackage$Resolution<TImport extends Import.SubPackage>
   abstract get subpath(): '' | `/${string}` | `#${string}`;
 
   override async resolveImport(spec: Import | string): Promise<ImportResolution> {
-    spec = recognizeImport(spec);
+    spec = this.#resolver.recognizeImport(spec);
 
     switch (spec.kind) {
       case 'path':

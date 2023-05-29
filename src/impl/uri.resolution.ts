@@ -1,6 +1,5 @@
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
-import { recognizeImport } from '../resolution/recognize-import.js';
 import { ImportResolver } from './import-resolver.js';
 import { Import$Resolution } from './import.resolution.js';
 import { uriToImport } from './uri-to-import.js';
@@ -15,7 +14,7 @@ export class URI$Resolution extends Import$Resolution<Import.URI> {
   }
 
   override async resolveImport(spec: Import | string): Promise<ImportResolution> {
-    spec = recognizeImport(spec);
+    spec = this.#resolver.recognizeImport(spec);
 
     switch (spec.kind) {
       case 'uri':

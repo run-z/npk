@@ -3,6 +3,7 @@ import { resolveRootPackage } from '../fs/resolve-root-package.js';
 import { VirtualPackageFS } from '../fs/virtual-package-fs.js';
 import { ImportResolution } from './import-resolution.js';
 import { PackageResolution } from './package-resolution.js';
+import { recognizeImport } from './recognize-import.js';
 
 describe('ImportResolution', () => {
   let fs: VirtualPackageFS;
@@ -52,7 +53,9 @@ describe('ImportResolution', () => {
 
     describe('resolveImport', () => {
       it('resolves URI', async () => {
-        const uriResolution = await resolution.resolveImport('http://localhost/pkg/test?ver=3.0.0');
+        const uriResolution = await resolution.resolveImport(
+          recognizeImport('http://localhost/pkg/test?ver=3.0.0'),
+        );
 
         expect(uriResolution.importSpec).toEqual({
           kind: 'uri',

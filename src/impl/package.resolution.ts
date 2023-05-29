@@ -4,7 +4,6 @@ import { ImportDependency, SubPackageDependency } from '../resolution/import-dep
 import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
 import { PackageResolution } from '../resolution/package-resolution.js';
-import { recognizeImport } from '../resolution/recognize-import.js';
 import { dirURI } from './dir-uri.js';
 import { ImportResolver } from './import-resolver.js';
 import { parseRange } from './parse-range.js';
@@ -23,7 +22,7 @@ export class Package$Resolution
     resolver: ImportResolver,
     uri: string,
     packageInfo: PackageInfo,
-    importSpec: Import.Package = packageImportSpec(packageInfo),
+    importSpec: Import.Package = packageImportSpec(resolver, packageInfo),
   ) {
     super(resolver, uri, importSpec);
 
@@ -134,8 +133,11 @@ export class Package$Resolution
 
 }
 
-function packageImportSpec({ name, scope, localName }: PackageInfo): Import.Package {
-  const spec = recognizeImport(name);
+function packageImportSpec(
+  resolver: ImportResolver,
+  { name, scope, localName }: PackageInfo,
+): Import.Package {
+  const spec = resolver.recognizeImport(name);
 
   if (spec.kind === 'package') {
     return spec;
