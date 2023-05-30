@@ -78,8 +78,7 @@ export class Package$Resolution
     }
 
     const {
-      peerDependencies,
-      packageJson: { dependencies, devDependencies },
+      packageJson: { dependencies, peerDependencies, devDependencies },
     } = this.packageInfo;
 
     const dep =
