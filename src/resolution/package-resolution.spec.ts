@@ -397,11 +397,15 @@ describe('PackageResolution', () => {
 
       root = await resolveRootPackage(fs);
 
-      fs.addPackage('package:dep2', { name: 'dep2', version: '1.0.0' }, true);
+      fs.addPackage('package:dep2', { name: 'dep2', version: '1.0.0' }, { allowDuplicate: true });
 
       const dep2v1 = (await root.resolveImport('package:dep2')).asPackage()!;
 
-      fs.addPackage('package:dep2@biz', { name: 'dep2', version: '1.0.0' }, true);
+      fs.addPackage(
+        'package:dep2@biz',
+        { name: 'dep2', version: '1.0.0' },
+        { allowDuplicate: true },
+      );
 
       const dep2v2 = (await root.resolveImport('package:dep2@biz')).asPackage()!;
 

@@ -102,25 +102,15 @@ export abstract class PackageFS {
   /**
    * Dereferences package entry.
    *
-   * Does not dereference by default.
-   *
    * @param host - Host package which entry to resolve.
    * @param spec - Package or its entry import specifier.
    *
    * @returns Promise resolved to either module URI, or `undefined` if nothing to dereference.
    */
-  derefEntry(
+  abstract derefEntry(
     host: PackageResolution,
     spec: Import.Package | Import.Entry | Import.Private,
   ): Promise<string | undefined>;
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async derefEntry(
-    _host: PackageResolution,
-    _spec: Import.Package | Import.Entry | Import.Private,
-  ): Promise<string | undefined> {
-    return;
-  }
 
   /**
    * Searches for package directory containing the given file or URI.
