@@ -1,20 +1,20 @@
 import { Import } from '../resolution/import.js';
-import { PackageResolution } from '../resolution/package-resolution.js';
 import { ImportResolver } from './import-resolver.js';
+import { Package$Resolution } from './package.resolution.js';
 import { SubPackage$Resolution } from './sub-package.resolution.js';
 
 export class PackageEntry$Resolution extends SubPackage$Resolution<Import.Entry> {
 
-  static uri(resolver: ImportResolver, host: PackageResolution, subpath: `/${string}`): string {
+  static uri(resolver: ImportResolver, host: Package$Resolution, subpath: `/${string}`): string {
     return resolver.fs.resolvePath(host, subpath.slice(1));
   }
 
-  readonly #host: PackageResolution;
+  readonly #host: Package$Resolution;
   readonly #subpath: `/${string}`;
 
   constructor(
     resolver: ImportResolver,
-    host: PackageResolution,
+    host: Package$Resolution,
     uri: string,
     subpath: `/${string}`,
   ) {
@@ -31,7 +31,7 @@ export class PackageEntry$Resolution extends SubPackage$Resolution<Import.Entry>
     this.#subpath = subpath;
   }
 
-  override get host(): PackageResolution {
+  override get host(): Package$Resolution {
     return this.#host;
   }
 

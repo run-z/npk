@@ -1,14 +1,14 @@
 import { Import } from '../resolution/import.js';
-import { PackageResolution } from '../resolution/package-resolution.js';
 import { ImportResolver } from './import-resolver.js';
+import { Package$Resolution } from './package.resolution.js';
 import { SubPackage$Resolution } from './sub-package.resolution.js';
 
 export class PackageFile$Resolution extends SubPackage$Resolution<Import.Relative> {
 
-  readonly #host: PackageResolution;
+  readonly #host: Package$Resolution;
   readonly #subpath: `/${string}`;
 
-  constructor(resolver: ImportResolver, host: PackageResolution, path: `./${string}`) {
+  constructor(resolver: ImportResolver, host: Package$Resolution, path: `./${string}`) {
     super(resolver, resolver.fs.resolvePath(host, path), {
       kind: 'path',
       spec: path,
@@ -21,7 +21,7 @@ export class PackageFile$Resolution extends SubPackage$Resolution<Import.Relativ
     this.#subpath = path.slice(1) as `/${string}`;
   }
 
-  override get host(): PackageResolution {
+  override get host(): Package$Resolution {
     return this.#host;
   }
 

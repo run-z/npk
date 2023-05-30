@@ -173,6 +173,22 @@ export class VirtualPackageFS extends PackageFS {
     return this.#toPackageURI(new URL(path, this.#toHttpURL(relativeTo.resolutionBaseURI)));
   }
 
+  #toPackageURI(uri: string | URL): string {
+    let pathname = (typeof uri === 'string' ? new URL(uri) : uri).pathname;
+
+    if (pathname.endsWith('/')) {
+      pathname = pathname.slice(0, -1);
+    }
+
+    return 'package:' + (pathname.startsWith('/') ? pathname.slice(1) : pathname);
+  }
+
+  #toHttpURL(uri: string): URL {
+    const pathname = new URL(uri).pathname;
+
+    return new URL(pathname.startsWith('/') ? pathname : `/${pathname}`, 'http://localhost/');
+  }
+
   // eslint-disable-next-line @typescript-eslint/require-await
   override async resolveName(
     relativeTo: PackageResolution,
@@ -212,22 +228,6 @@ export class VirtualPackageFS extends PackageFS {
     }
 
     return;
-  }
-
-  #toPackageURI(uri: string | URL): string {
-    let pathname = (typeof uri === 'string' ? new URL(uri) : uri).pathname;
-
-    if (pathname.endsWith('/')) {
-      pathname = pathname.slice(0, -1);
-    }
-
-    return 'package:' + (pathname.startsWith('/') ? pathname.slice(1) : pathname);
-  }
-
-  #toHttpURL(uri: string): URL {
-    const pathname = new URL(uri).pathname;
-
-    return new URL(pathname.startsWith('/') ? pathname : `/${pathname}`, 'http://localhost/');
   }
 
 }

@@ -1,30 +1,26 @@
 import { PackageFS } from '../fs/package-fs.js';
-import { PackageJson } from '../package/package.json.js';
-import { ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
-import { PackageResolution } from '../resolution/package-resolution.js';
 import { Generic$Resolution } from './generic.resolution.js';
+import { Import$Resolution } from './import.resolution.js';
 import { PackageEntry$Resolution } from './package-entry.resolution.js';
 import { PackageFile$Resolution } from './package-file.resolution.js';
 import { PackagePrivate$Resolution } from './package-private.resolution.js';
 import { Package$Resolution } from './package.resolution.js';
-import { parseRange } from './parse-range.js';
 import { uriToImport } from './uri-to-import.js';
 import { URI$Resolution } from './uri.resolution.js';
 
 export class ImportResolver {
 
-  readonly #root: ImportResolution;
+  readonly #root: Import$Resolution;
   readonly #fs: PackageFS;
-  readonly #byURI = new Map<string, Promise<ImportResolution>>();
-  readonly #byName = new Map<string, PackageResolution[]>();
+  readonly #byURI = new Map<string, Import$Resolution>();
   #initialized = false;
 
   constructor({
     createRoot,
     fs,
   }: {
-    readonly createRoot: (resolver: ImportResolver) => ImportResolution;
+    readonly createRoot: (resolver: ImportResolver) => Import$Resolution;
     readonly fs: PackageFS;
   }) {
     this.#fs = fs;
@@ -34,11 +30,11 @@ export class ImportResolver {
   #init(): void {
     if (!this.#initialized) {
       this.#initialized = true;
-      this.#addResolution(this.#root.uri, () => this.#root).catch(null);
+      this.#addResolution(this.#root.uri, this.#root).catch(null);
     }
   }
 
-  get root(): ImportResolution {
+  get root(): Import$Resolution {
     return this.#root;
   }
 
@@ -54,7 +50,7 @@ export class ImportResolver {
     return typeof spec === 'string' ? this.fs.recognizeImport(spec) : spec;
   }
 
-  async resolve(spec: Import): Promise<ImportResolution> {
+  async resolve(spec: Import): Promise<Import$Resolution> {
     if (spec.kind === 'uri') {
       return await this.resolveURI(spec);
     }
@@ -63,7 +59,7 @@ export class ImportResolver {
 
     const uri = this.#genericResolutionURI(spec);
 
-    return await this.#addResolution(uri, () => new Generic$Resolution(this, uri, spec));
+    return await this.#addResolution(uri, new Generic$Resolution(this, uri, spec));
   }
 
   #genericResolutionURI(spec: Exclude<Import, Import.URI>): string {
@@ -83,92 +79,50 @@ export class ImportResolver {
     }
   }
 
-  resolveURI(
+  async resolveURI(
     spec: Import.URI,
-    createResolution?: (
-      uri: string,
-    ) => ImportResolution | undefined | Promise<ImportResolution | undefined>,
-  ): Promise<ImportResolution> {
+    createResolution?: (uri: string) => Import$Resolution | undefined,
+  ): Promise<Import$Resolution> {
     this.#init();
 
     const { spec: uri } = spec;
 
     return (
       this.#findByURI(uri)
-      ?? this.#addResolution(
-        uri,
-        async uri => (await createResolution?.(uri)) ?? new URI$Resolution(this, spec),
-      )
+      ?? (await this.#addResolution(uri, createResolution?.(uri) ?? new URI$Resolution(this, spec)))
     );
   }
 
-  #findByURI(uri: string): Promise<ImportResolution> | undefined {
+  async #addResolution<TResolution extends Import$Resolution>(
+    uri: string,
+    resolution: TResolution,
+  ): Promise<TResolution> {
+    this.#byURI.set(uri, resolution);
+
+    await resolution.init();
+
+    return resolution;
+  }
+
+  #findByURI(uri: string): Import$Resolution | undefined {
     this.#init();
 
     return this.#byURI.get(uri);
   }
 
-  #addResolution<T extends ImportResolution>(
-    uri: string,
-    createResolution: (uri: string) => T | Promise<T>,
-  ): Promise<T> {
-    const result = this.#resolve(uri, createResolution);
-
-    this.#byURI.set(uri, result);
-
-    return result;
-  }
-
-  async #resolve<T extends ImportResolution | undefined>(
-    uri: string,
-    createResolution: (uri: string) => T | Promise<T>,
-  ): Promise<T> {
-    const resolution = await createResolution(uri);
-
-    this.#registerName(resolution);
-
-    return resolution;
-  }
-
-  #registerName<T extends ImportResolution | undefined>(resolution: T): void {
-    const pkg = resolution?.asPackage();
-
-    if (pkg) {
-      const {
-        packageInfo: { name },
-      } = pkg;
-      const withSameName = this.#byName.get(name);
-
-      if (withSameName) {
-        withSameName.push(pkg);
-      } else {
-        this.#byName.set(name, [pkg]);
-      }
-    }
-  }
-
-  async resolvePrivate(host: PackageResolution, spec: Import.Private): Promise<ImportResolution> {
-    return this.resolveURI(
+  async resolvePrivate(host: Package$Resolution, spec: Import.Private): Promise<Import$Resolution> {
+    return await this.resolveURI(
       uriToImport(PackagePrivate$Resolution.uri(host, spec)),
       uri => new PackagePrivate$Resolution(this, host, uri, spec),
     );
   }
 
   async resolveEntry(
-    host: PackageResolution,
-    { name, subpath }: Import.Package | Import.Entry,
-  ): Promise<ImportResolution | undefined> {
-    const {
-      packageInfo: {
-        peerDependencies,
-        packageJson: { dependencies, devDependencies },
-      },
-    } = host;
-    const dep =
-      this.#findByName(name, dependencies)
-      ?? this.#findByName(name, peerDependencies)
-      ?? this.#findByName(name, devDependencies)
-      ?? (await this.#resolveDepOf(host, name));
+    relativeTo: Package$Resolution,
+    spec: Import.Package | Import.Entry,
+  ): Promise<Import$Resolution | undefined> {
+    const { name, subpath } = spec;
+    const dep = await this.#resolveDepOf(relativeTo, name);
 
     if (!dep || !subpath) {
       return dep;
@@ -180,33 +134,10 @@ export class ImportResolver {
     );
   }
 
-  #findByName(
-    name: string,
-    dependencies: PackageJson.Dependencies | undefined,
-  ): PackageResolution | undefined {
-    const range = parseRange(dependencies?.[name]);
-
-    if (!range) {
-      return;
-    }
-
-    const candidates = this.#byName.get(name);
-
-    if (candidates) {
-      for (const candidate of candidates) {
-        if (range.test(candidate.packageInfo.version)) {
-          return candidate;
-        }
-      }
-    }
-
-    return;
-  }
-
   async #resolveDepOf(
-    host: PackageResolution,
+    host: Package$Resolution,
     depName: string,
-  ): Promise<PackageResolution | undefined> {
+  ): Promise<Package$Resolution | undefined> {
     if (depName === host.packageInfo.name) {
       return host; // Resolve to host package.
     }
@@ -217,35 +148,40 @@ export class ImportResolver {
       return undefined;
     }
 
-    const subPackage = await this.resolveSubPackage(uriToImport(entryPointURI));
+    const subPackage = await this.resolvePackageOrFile(uriToImport(entryPointURI));
 
     return subPackage?.host;
   }
 
-  async resolveSubPackage(spec: Import.URI): Promise<ImportResolution> {
-    return await this.resolveURI(spec, async uri => {
-      const packageDir = await this.#fs.findPackageDir(uri);
+  async resolvePackageOrFile(spec: Import.URI): Promise<Import$Resolution> {
+    const { spec: uri } = spec;
+    const packageDir = await this.#fs.findPackageDir(uri);
 
-      if (!packageDir) {
-        return;
-      }
+    if (!packageDir) {
+      // No package directory.
+      // Use generic resolution.
+      return await this.resolveURI(spec);
+    }
 
-      const pkg = new Package$Resolution(this, packageDir.uri, packageDir.packageInfo);
+    const { uri: dirURI, packageInfo } = packageDir;
 
-      if (pkg.uri === uri) {
-        // Package imported directly rather its subpath.
-        // Avoid recurrent call.
-        return pkg;
-      }
+    // Resolve the host first.
+    const { host } = await this.resolveURI(
+      uriToImport(dirURI),
+      () => new Package$Resolution(this, dirURI, packageInfo),
+    );
 
-      // Resolve the host first.
-      const { host } = await this.resolveURI(uriToImport(packageDir.uri), () => pkg);
+    if (host?.uri === uri) {
+      // Package imported directly rather its subpath.
+      // Avoid recurrent call.
+      return host;
+    }
 
-      return (
-        host
-        && new PackageFile$Resolution(this, host, `./${uri.slice(host.resolutionBaseURI.length)}`)
-      );
-    });
+    return this.resolveURI(
+      spec,
+      () => host
+        && new PackageFile$Resolution(this, host, `./${uri.slice(host.resolutionBaseURI.length)}`),
+    );
   }
 
 }
