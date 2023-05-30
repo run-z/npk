@@ -43,6 +43,10 @@ export abstract class Import$Resolution<TImport extends Import>
     return this.#importSpec;
   }
 
+  deref(): ImportResolution {
+    return this;
+  }
+
   abstract resolveImport(spec: Import | string): Promise<ImportResolution>;
 
   resolveDependency(

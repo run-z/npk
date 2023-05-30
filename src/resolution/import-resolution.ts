@@ -49,6 +49,15 @@ export interface ImportResolution<out TImport extends Import = Import> {
   get resolutionBaseURI(): string;
 
   /**
+   * Dereferences this import.
+   *
+   * It may e.g. dereference package name to module path.
+   *
+   * @returns Either dereferenced import, or `this` instance if nothing to dereference.
+   */
+  deref(): ImportResolution;
+
+  /**
    * Resolves another module imported by this one.
    *
    * @param spec - Imported module specifier, either {@link recognizeImport recognized} or not.
