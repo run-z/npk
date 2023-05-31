@@ -244,7 +244,6 @@ export class VirtualPackageFS extends PackageFS {
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   override async derefEntry(
     host: PackageResolution,
     spec: Import.Package | Import.Entry | Import.Private,
@@ -252,7 +251,14 @@ export class VirtualPackageFS extends PackageFS {
     const key = spec.kind === 'package' ? '' : spec.kind === 'entry' ? spec.subpath : spec.spec;
     const path = this.#byURI.get(host.uri)?.deref[key];
 
-    return path && this.resolvePath(host, path);
+    if (!path) {
+      return;
+    }
+    if (path.startsWith('./')) {
+      return this.resolvePath(host, path);
+    }
+
+    return await this.resolveName(host, path);
   }
 
 }
@@ -275,10 +281,12 @@ export interface VirtualPackageOptions {
 
   /**
    * Per-entry dereference mappings.
+   *
+   * Either maps to local file (when starts with `./`, or to package name).
    */
   readonly deref?:
     | {
-        readonly [subpath in '' | `/${string}` | `#${string}`]?: `./${string}` | undefined;
+        readonly [subpath in '' | `/${string}` | `#${string}`]?: `./${string}` | string | undefined;
       }
     | undefined;
 }

@@ -107,7 +107,7 @@ describe('VirtualPackageFS', () => {
         uri: './dist/sub.js',
       });
     });
-    it('dereferences private entry', async () => {
+    it('dereferences private entry to local file', async () => {
       fs.addPackage(
         'package:test',
         {
@@ -131,6 +131,32 @@ describe('VirtualPackageFS', () => {
         path: './dist/private.js',
         uri: './dist/private.js',
       });
+    });
+    it('dereferences private entry to package', async () => {
+      fs.addPackage(
+        'package:test',
+        {
+          name: 'test',
+          version: '1.0.0',
+          dependencies: {
+            other: '1.0.0',
+          },
+        },
+        {
+          deref: { '#private': 'other' },
+        },
+      );
+      fs.addPackage('package:other', {
+        name: 'other',
+        version: '1.0.0',
+      });
+
+      const host = await root.resolveImport('package:test');
+      const other = await host.resolveImport('other');
+      const resolved = await host.resolveImport('#private');
+      const deref = resolved?.deref();
+
+      expect(deref).toBe(other);
     });
   });
 });
