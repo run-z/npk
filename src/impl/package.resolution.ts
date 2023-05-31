@@ -74,7 +74,7 @@ export class Package$Resolution
     const knownDep = this.#dependencies.get(host.uri);
 
     if (knownDep != null) {
-      return knownDep || null;
+      return knownDep ? { kind: knownDep.kind, on } : null;
     }
 
     const {
