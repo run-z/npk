@@ -13,7 +13,7 @@ export class ImportResolver {
 
   readonly #root: Import$Resolution;
   readonly #fs: PackageFS;
-  readonly #byURI = new Map<string, Import$Resolution>();
+  readonly #byURI = new Map<string, Promise<Import$Resolution>>();
   #initialized = false;
 
   constructor({
@@ -79,7 +79,7 @@ export class ImportResolver {
     }
   }
 
-  async resolveURI(
+  resolveURI(
     spec: Import.URI,
     createResolution?: (uri: string) => Import$Resolution | undefined,
   ): Promise<Import$Resolution> {
@@ -89,22 +89,22 @@ export class ImportResolver {
 
     return (
       this.#findByURI(uri)
-      ?? (await this.#addResolution(uri, createResolution?.(uri) ?? new URI$Resolution(this, spec)))
+      ?? this.#addResolution(uri, createResolution?.(uri) ?? new URI$Resolution(this, spec))
     );
   }
 
-  async #addResolution<TResolution extends Import$Resolution>(
+  #addResolution<TResolution extends Import$Resolution>(
     uri: string,
     resolution: TResolution,
   ): Promise<TResolution> {
-    this.#byURI.set(uri, resolution);
+    const promise = Promise.resolve(resolution).then(async resolution => await resolution.init());
 
-    await resolution.init();
+    this.#byURI.set(uri, promise);
 
-    return resolution;
+    return promise;
   }
 
-  #findByURI(uri: string): Import$Resolution | undefined {
+  #findByURI(uri: string): Promise<Import$Resolution> | undefined {
     this.#init();
 
     return this.#byURI.get(uri);
@@ -182,6 +182,32 @@ export class ImportResolver {
       () => host
         && new PackageFile$Resolution(this, host, `./${uri.slice(host.resolutionBaseURI.length)}`),
     );
+  }
+
+  async derefEntry(
+    host: Package$Resolution,
+    spec: Import.Package | Import.Entry | Import.Private,
+  ): Promise<Import$Resolution | undefined> {
+    const derefURI = await this.fs.derefEntry(host, spec);
+
+    if (!derefURI || derefURI === host.uri) {
+      return;
+    }
+
+    const derefSpec = uriToImport(derefURI);
+
+    if (derefURI.startsWith(host.resolutionBaseURI)) {
+      return await this.resolveURI(
+        derefSpec,
+        () => new PackageFile$Resolution(
+            this,
+            host,
+            `./${derefURI.slice(host.resolutionBaseURI.length)}`,
+          ),
+      );
+    }
+
+    return await this.resolvePackageOrFile(derefSpec);
   }
 
 }

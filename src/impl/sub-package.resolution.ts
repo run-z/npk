@@ -81,10 +81,10 @@ export abstract class SubPackage$Resolution<
       const { host, importSpec } = this;
 
       if (importSpec.kind !== 'path') {
-        const deref = await this.#resolver.fs.derefEntry(host, importSpec);
+        const deref = await this.#resolver.derefEntry(host, importSpec);
 
         if (deref) {
-          this.#deref = await host.resolveImport(deref);
+          this.#deref = deref;
         }
       }
     }
