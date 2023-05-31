@@ -241,25 +241,6 @@ export class NodePackageFS extends PackageFS {
     return importSpec.scheme === 'file' ? importSpec.spec : undefined;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  override async resolveName(
-    relativeTo: PackageResolution,
-    name: string,
-  ): Promise<string | undefined> {
-    const requireModule = this.#nodeModule.createRequire(
-      relativeTo.resolutionBaseURI + 'index.js' /* in case of package directory */,
-    );
-    let modulePath: string;
-
-    try {
-      modulePath = requireModule.resolve(name);
-    } catch (error) {
-      return; // Ignore unresolved package.
-    }
-
-    return this.#url.pathToFileURL(modulePath).href;
-  }
-
   override async loadPackage(uri: string): Promise<PackageInfo | undefined> {
     const dir = this.#url.fileURLToPath(uri);
     const filePath = this.#path.join(dir, 'package.json');
@@ -288,6 +269,40 @@ export class NodePackageFS extends PackageFS {
     }
 
     return this.#url.pathToFileURL(parentDir).href;
+  }
+
+  override async resolveName(
+    relativeTo: PackageResolution,
+    name: string,
+  ): Promise<string | undefined> {
+    return await this.#resolveModuleURI(relativeTo, name);
+  }
+
+  override async derefEntry(
+    host: PackageResolution,
+    spec: Import.Package | Import.Entry | Import.Private,
+  ): Promise<string | undefined> {
+    return await this.#resolveModuleURI(host, spec.spec);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async #resolveModuleURI(
+    relativeTo: PackageResolution,
+    spec: string,
+  ): Promise<string | undefined> {
+    const requireModule = this.#nodeModule.createRequire(
+      relativeTo.resolutionBaseURI + 'index.js' /* in case of package directory */,
+    );
+
+    let modulePath: string;
+
+    try {
+      modulePath = requireModule.resolve(spec);
+    } catch (error) {
+      return; // Ignore unresolved package.
+    }
+
+    return this.#url.pathToFileURL(modulePath).href;
   }
 
 }

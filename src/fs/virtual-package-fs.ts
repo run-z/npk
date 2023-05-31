@@ -18,8 +18,8 @@ import { PackageFS } from './package-fs.js';
 export class VirtualPackageFS extends PackageFS {
 
   readonly #root: string;
-  readonly #byURI = new Map<string, PackageDir>();
-  readonly #byName = new Map<string, Map<string, PackageDir>>();
+  readonly #byURI = new Map<string, VirtualPackage>();
+  readonly #byName = new Map<string, Map<string, VirtualPackage>>();
 
   /**
    * Constructs virtual package file system.
@@ -44,12 +44,12 @@ export class VirtualPackageFS extends PackageFS {
    *
    * @param uri - Package URI.
    * @param packageJson - `package.json` contents.
-   * @param allowDuplicate - Permit package with the same name. `false` by default.
+   * @param options - Added package options.
    *
    * @returns `this` instance.
    */
-  addRoot(packageJson: PackageJson | PackageInfo, allowDuplicate?: boolean): this {
-    return this.addPackage(this.root, packageJson, allowDuplicate);
+  addRoot(packageJson: PackageJson | PackageInfo, options?: VirtualPackageOptions): this {
+    return this.addPackage(this.root, packageJson, options);
   }
 
   /**
@@ -61,11 +61,11 @@ export class VirtualPackageFS extends PackageFS {
    *
    * @param uri - Package URI.
    * @param packageJson - `package.json` contents.
-   * @param allowDuplicate - Permit package with the same name. `false` by default.
+   * @param options - Added package options.
    *
    * @returns `this` instance.
    */
-  addPackage(packageJson: PackageJson.Valid, allowDuplicate?: boolean): this;
+  addPackage(packageJson: PackageJson.Valid, options?: VirtualPackageOptions): this;
 
   /**
    * Registers virtual package at the given URI.
@@ -76,43 +76,52 @@ export class VirtualPackageFS extends PackageFS {
    *
    * @param uri - Package URI.
    * @param packageJson - `package.json` contents.
-   * @param allowDuplicate - Permit package with the same name. `false` by default.
+   * @param options - Added package options.
    *
    * @returns `this` instance.
    */
-  addPackage(uri: string, packageJson: PackageJson | PackageInfo, allowDuplicate?: boolean): this;
+  addPackage(
+    uri: string,
+    packageJson: PackageJson | PackageInfo,
+    options?: VirtualPackageOptions,
+  ): this;
 
   addPackage(
     uriOrPackageJson: string | PackageJson | PackageInfo,
-    packageJsonOrAllowDuplicate?: PackageJson | PackageInfo | boolean,
-    allowDuplicate?: boolean,
+    packageJsonOrOptions?: PackageJson | PackageInfo | VirtualPackageOptions,
+    options: VirtualPackageOptions = {},
   ): this {
     let uri: string;
     let packageInfo: PackageInfo;
 
     if (typeof uriOrPackageJson === 'string') {
       uri = this.#toPackageURI(uriOrPackageJson);
-      packageInfo = PackageInfo.from(packageJsonOrAllowDuplicate as PackageJson | PackageInfo);
+      packageInfo = PackageInfo.from(packageJsonOrOptions as PackageJson | PackageInfo);
     } else {
       packageInfo = PackageInfo.from(uriOrPackageJson);
       uri = `package:${packageInfo.name}/${packageInfo.version}`;
+      options = (packageJsonOrOptions as VirtualPackageOptions) ?? {};
     }
+
+    const { allowDuplicate = false, deref = {} } = options;
 
     if (!allowDuplicate) {
       const existing = this.#byURI.get(uri);
 
       if (existing) {
-        this.#removeNamedPackage(existing.packageInfo);
+        this.#removeNamedPackage(existing.dir.packageInfo);
       }
     }
 
-    this.#addPackage({ uri, packageInfo });
+    this.#addPackage({ dir: { uri, packageInfo }, deref });
 
     return this;
   }
 
-  #addPackage(packageDir: PackageDir): void {
-    const { uri, packageInfo: packageInfo } = packageDir;
+  #addPackage(virtualPackage: VirtualPackage): void {
+    const {
+      dir: { uri, packageInfo },
+    } = virtualPackage;
     const { name, version } = packageInfo;
     let byVersion = this.#byName.get(name);
 
@@ -125,11 +134,11 @@ export class VirtualPackageFS extends PackageFS {
 
     if (existing) {
       byVersion.delete(version);
-      this.#byURI.delete(existing.uri);
+      this.#byURI.delete(existing.dir.uri);
     }
 
-    byVersion.set(version, packageDir);
-    this.#byURI.set(uri, packageDir);
+    byVersion.set(version, virtualPackage);
+    this.#byURI.set(uri, virtualPackage);
   }
 
   #removeNamedPackage({ name, version }: PackageInfo): void {
@@ -141,7 +150,7 @@ export class VirtualPackageFS extends PackageFS {
       this.#byName.delete(name);
     }
 
-    this.#byURI.delete(existing.uri);
+    this.#byURI.delete(existing.dir.uri);
   }
 
   override recognizePackageURI(importSpec: Import.URI): string | undefined {
@@ -149,7 +158,7 @@ export class VirtualPackageFS extends PackageFS {
   }
 
   override loadPackage(uri: string): Promise<PackageInfo | undefined> {
-    return Promise.resolve(this.#byURI.get(uri)?.packageInfo);
+    return Promise.resolve(this.#byURI.get(uri)?.dir.packageInfo);
   }
 
   override parentDir(uri: string): string | undefined {
@@ -171,6 +180,22 @@ export class VirtualPackageFS extends PackageFS {
 
   override resolvePath(relativeTo: PackageResolution, path: string): string {
     return this.#toPackageURI(new URL(path, this.#toHttpURL(relativeTo.resolutionBaseURI)));
+  }
+
+  #toPackageURI(uri: string | URL): string {
+    let pathname = (typeof uri === 'string' ? new URL(uri) : uri).pathname;
+
+    if (pathname.endsWith('/')) {
+      pathname = pathname.slice(0, -1);
+    }
+
+    return 'package:' + (pathname.startsWith('/') ? pathname.slice(1) : pathname);
+  }
+
+  #toHttpURL(uri: string): URL {
+    const pathname = new URL(uri).pathname;
+
+    return new URL(pathname.startsWith('/') ? pathname : `/${pathname}`, 'http://localhost/');
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -204,7 +229,12 @@ export class VirtualPackageFS extends PackageFS {
     const byVersion = this.#byName.get(name);
 
     if (byVersion) {
-      for (const [version, { uri }] of byVersion) {
+      for (const [
+        version,
+        {
+          dir: { uri },
+        },
+      ] of byVersion) {
         if (range.test(version)) {
           return uri;
         }
@@ -214,20 +244,49 @@ export class VirtualPackageFS extends PackageFS {
     return;
   }
 
-  #toPackageURI(uri: string | URL): string {
-    let pathname = (typeof uri === 'string' ? new URL(uri) : uri).pathname;
+  override async derefEntry(
+    host: PackageResolution,
+    spec: Import.Package | Import.Entry | Import.Private,
+  ): Promise<string | undefined> {
+    const key = spec.kind === 'package' ? '' : spec.kind === 'entry' ? spec.subpath : spec.spec;
+    const path = this.#byURI.get(host.uri)?.deref[key];
 
-    if (pathname.endsWith('/')) {
-      pathname = pathname.slice(0, -1);
+    if (!path) {
+      return;
+    }
+    if (path.startsWith('./')) {
+      return this.resolvePath(host, path);
     }
 
-    return 'package:' + (pathname.startsWith('/') ? pathname.slice(1) : pathname);
+    return await this.resolveName(host, path);
   }
 
-  #toHttpURL(uri: string): URL {
-    const pathname = new URL(uri).pathname;
+}
 
-    return new URL(pathname.startsWith('/') ? pathname : `/${pathname}`, 'http://localhost/');
-  }
+interface VirtualPackage {
+  readonly dir: PackageDir;
+  readonly deref: Exclude<VirtualPackageOptions['deref'], undefined>;
+}
 
+/**
+ * Options for {@link VirtualPackageFS#addPackage added virtual package}.
+ */
+export interface VirtualPackageOptions {
+  /**
+   * Permit package with the same name.
+   *
+   * @defaultValue `false`.
+   */
+  readonly allowDuplicate?: boolean | undefined;
+
+  /**
+   * Per-entry dereference mappings.
+   *
+   * Either maps to local file (when starts with `./`, or to package name).
+   */
+  readonly deref?:
+    | {
+        readonly [subpath in '' | `/${string}` | `#${string}`]?: `./${string}` | string | undefined;
+      }
+    | undefined;
 }

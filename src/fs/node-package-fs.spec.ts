@@ -308,6 +308,7 @@ describe('NodePackageFS', () => {
       const depImport = await root.resolveImport('typescript');
 
       expect(depImport.importSpec.kind).toBe('package');
+      expect(depImport.deref()).toBe(fileImport);
       expect(root.resolveDependency(depImport)).toEqual({
         kind: 'dev',
         on: depImport,
@@ -331,6 +332,10 @@ describe('NodePackageFS', () => {
         kind: 'dev',
         on: packageImport,
       });
+
+      const fileImport = await root.resolveImport(uri);
+
+      expect(packageImport.deref()).toBe(fileImport);
     });
     it('does not resolve non-file URL', async () => {
       const urlImport = await root.resolveImport('http://localhost/pkg/test');

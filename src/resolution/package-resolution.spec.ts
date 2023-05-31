@@ -397,30 +397,20 @@ describe('PackageResolution', () => {
 
       root = await resolveRootPackage(fs);
 
-      fs.addPackage('package:dep2', { name: 'dep2', version: '1.0.0' }, true);
+      fs.addPackage('package:dep2', { name: 'dep2', version: '1.0.0' }, { allowDuplicate: true });
 
       const dep2v1 = (await root.resolveImport('package:dep2')).asPackage()!;
 
-      fs.addPackage('package:dep2@biz', { name: 'dep2', version: '1.0.0' }, true);
+      fs.addPackage(
+        'package:dep2@biz',
+        { name: 'dep2', version: '1.0.0' },
+        { allowDuplicate: true },
+      );
 
       const dep2v2 = (await root.resolveImport('package:dep2@biz')).asPackage()!;
 
       expect(root.resolveDependency(dep2v2)).toBeNull();
       expect(root.resolveDependency(dep2v1)).toBeNull();
-    });
-    it('does not resolve uninstalled peer dependency', async () => {
-      fs.addRoot({
-        name: 'root',
-        version: '1.0.0',
-        peerDependencies: { dep: '1.0.0' },
-        devDependencies: { dep2: '1.0.0' },
-      });
-      fs.addPackage({ name: 'dep', version: '1.0.0' });
-      root = await resolveRootPackage(fs);
-
-      const dep = await root.resolveImport('dep');
-
-      expect(root.resolveDependency(dep)).toBeNull();
     });
     it('does not resolve missing transient dependency', async () => {
       fs.addRoot({ name: 'root', version: '1.0.0', dependencies: { via: '^1.0.0' } });

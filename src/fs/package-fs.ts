@@ -95,9 +95,22 @@ export abstract class PackageFS {
    * @param relativeTo - Package to resolve another one against.
    * @param name - Package name to resolve.
    *
-   * @returns Promise resolve to either module URI, or `undefined` if the name can not be resolved.
+   * @returns Promise resolved to either module URI, or `undefined` if the name can not be resolved.
    */
   abstract resolveName(relativeTo: PackageResolution, name: string): Promise<string | undefined>;
+
+  /**
+   * Dereferences package entry.
+   *
+   * @param host - Host package which entry to resolve.
+   * @param spec - Package or its entry import specifier.
+   *
+   * @returns Promise resolved to either module URI, or `undefined` if nothing to dereference.
+   */
+  abstract derefEntry(
+    host: PackageResolution,
+    spec: Import.Package | Import.Entry | Import.Private,
+  ): Promise<string | undefined>;
 
   /**
    * Searches for package directory containing the given file or URI.

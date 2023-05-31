@@ -2,11 +2,11 @@ import { PackageFS } from '../fs/package-fs.js';
 import { AmbientDependency, ImportDependency } from '../resolution/import-dependency.js';
 import { ImportDependencyRequest, ImportResolution } from '../resolution/import-resolution.js';
 import { Import } from '../resolution/import.js';
-import { PackageResolution } from '../resolution/package-resolution.js';
-import { SubPackageResolution } from '../resolution/sub-package-resolution.js';
 import { ImportResolver } from './import-resolver.js';
+import { Package$Resolution } from './package.resolution.js';
+import { SubPackage$Resolution } from './sub-package.resolution.js';
 
-export abstract class Import$Resolution<TImport extends Import>
+export abstract class Import$Resolution<out TImport extends Import = Import>
   implements ImportResolution<TImport> {
 
   readonly #resolver: ImportResolver;
@@ -23,11 +23,11 @@ export abstract class Import$Resolution<TImport extends Import>
     return this.#resolver.fs;
   }
 
-  get root(): ImportResolution {
+  get root(): Import$Resolution {
     return this.#resolver.root;
   }
 
-  get host(): PackageResolution | undefined {
+  get host(): Package$Resolution | undefined {
     return;
   }
 
@@ -41,6 +41,10 @@ export abstract class Import$Resolution<TImport extends Import>
 
   get importSpec(): TImport {
     return this.#importSpec;
+  }
+
+  deref(): ImportResolution {
+    return this;
   }
 
   abstract resolveImport(spec: Import | string): Promise<ImportResolution>;
@@ -79,12 +83,16 @@ export abstract class Import$Resolution<TImport extends Import>
     return null;
   }
 
-  asPackage(): PackageResolution | undefined {
+  asPackage(): Package$Resolution | undefined {
     return;
   }
 
-  asSubPackage(): SubPackageResolution | undefined {
+  asSubPackage(): SubPackage$Resolution | undefined {
     return;
+  }
+
+  init(): Promise<this> {
+    return Promise.resolve(this);
   }
 
 }

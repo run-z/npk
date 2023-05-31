@@ -16,7 +16,7 @@ export class Package$Resolution
 
   readonly #resolutionBaseURI: string;
   readonly #packageInfo: PackageInfo;
-  readonly #dependencies = new Map<string, SubPackageDependency | false>();
+  readonly #dependencies = new Map<string, PackageDep | false>();
 
   constructor(
     resolver: ImportResolver,
@@ -74,12 +74,11 @@ export class Package$Resolution
     const knownDep = this.#dependencies.get(host.uri);
 
     if (knownDep != null) {
-      return knownDep || null;
+      return knownDep ? { kind: knownDep.kind, on } : null;
     }
 
     const {
-      peerDependencies,
-      packageJson: { dependencies, devDependencies },
+      packageJson: { dependencies, peerDependencies, devDependencies },
     } = this.packageInfo;
 
     const dep =
@@ -104,7 +103,7 @@ export class Package$Resolution
     on: PackageResolution,
     dependencies: PackageJson.Dependencies | undefined,
     kind: SubPackageDependency['kind'],
-  ): SubPackageDependency | null {
+  ): PackageDep | null {
     if (!dependencies) {
       return null;
     }
@@ -175,4 +174,9 @@ function packageImportSpec(
     local: localName,
     subpath: undefined,
   };
+}
+
+interface PackageDep {
+  readonly kind: SubPackageDependency['kind'];
+  readonly on: PackageResolution;
 }

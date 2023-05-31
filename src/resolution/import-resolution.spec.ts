@@ -23,15 +23,28 @@ describe('ImportResolution', () => {
     });
 
     describe('fs', () => {
-      it('is set to package FS', () => {
-        expect(root.fs).toBe(fs);
+      it('refers package FS', () => {
         expect(resolution.fs).toBe(fs);
+        expect(root.fs).toBe(fs);
+      });
+    });
+
+    describe('root', () => {
+      it('refers resolution root', () => {
+        expect(resolution.root).toBe(root);
+        expect(root.root).toBe(root);
       });
     });
 
     describe('resolutionBaseURI', () => {
       it('the same as URI', () => {
         expect(resolution.resolutionBaseURI).toBe(resolution.uri);
+      });
+    });
+
+    describe('deref', () => {
+      it('does not dereference by default', () => {
+        expect(resolution.deref()).toBe(resolution);
       });
     });
 
