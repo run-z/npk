@@ -30,7 +30,7 @@ export class ImportResolver {
   #init(): void {
     if (!this.#initialized) {
       this.#initialized = true;
-      this.#addResolution(this.#root.uri, this.#root).catch(null);
+      this.#addResolution(this.#root.uri, this.#root).catch(/* istanbul ignore next */ () => {});
     }
   }
 
