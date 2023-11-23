@@ -13,7 +13,7 @@ export class PackageEntryPoint extends PackageEntryTargets {
   readonly #path: PackagePath;
   #isPattern?: boolean;
   #pattern?: RegExp;
-  #targetsByCondition = new Map<string, Set<PackageJson.LocalPath>>();
+  readonly #targetsByCondition = new Map<string, Set<PackageJson.LocalPath>>();
 
   /**
    * Constructs entry point.
