@@ -22,9 +22,9 @@ Inspect packages and their `package.json`.
 [build-windows-link]: https://github.com/run-z/npk/actions?query=workflow:Build@Windows
 [build-macos-link]: https://github.com/run-z/npk/actions?query=workflow:Build@MacOS
 [quality-img]: https://app.codacy.com/project/badge/Grade/f0e49531a6184a419b8b8c446376fd4c
-[quality-link]: https://www.codacy.com/gh/run-z/npk/dashboard?utm_source=github.com&utm_medium=referral&utm_content=run-z/npk&utm_campaign=Badge_Grade
+[quality-link]: https://app.codacy.com/gh/run-z/npk/dashboard?utm_source=gh&utm_medium=referral&utm_content=run-z/npk&utm_campaign=Badge_Grade
 [coverage-img]: https://app.codacy.com/project/badge/Coverage/f0e49531a6184a419b8b8c446376fd4c
-[coverage-link]: https://www.codacy.com/gh/run-z/npk/dashboard?utm_source=github.com&utm_medium=referral&utm_content=run-z/npk&utm_campaign=Badge_Coverage
+[coverage-link]: https://app.codacy.com/gh/run-z/npk/dashboard?utm_source=gh&utm_medium=referral&utm_content=run-z/npk&utm_campaign=Badge_Coverage
 [github-image]: https://img.shields.io/static/v1?logo=github&label=GitHub&message=project&color=informational
 [github-url]: https://github.com/run-z/npk
 [api-docs-image]: https://img.shields.io/static/v1?logo=typescript&label=API&message=docs&color=informational
