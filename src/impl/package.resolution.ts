@@ -12,8 +12,8 @@ import { SubPackage$Resolution } from './sub-package.resolution.js';
 
 export class Package$Resolution
   extends SubPackage$Resolution<Import.Package>
-  implements PackageResolution {
-
+  implements PackageResolution
+{
   readonly #resolutionBaseURI: string;
   readonly #packageInfo: PackageInfo;
   readonly #dependencies = new Map<string, PackageDep | false>();
@@ -82,9 +82,9 @@ export class Package$Resolution
     } = this.packageInfo;
 
     const dep =
-      this.#findDep(host, dependencies, 'runtime')
-      || this.#findDep(host, peerDependencies, 'peer')
-      || this.#findDep(host, devDependencies, 'dev');
+      this.#findDep(host, dependencies, 'runtime') ||
+      this.#findDep(host, peerDependencies, 'peer') ||
+      this.#findDep(host, devDependencies, 'dev');
 
     if (request?.via && request.via !== this) {
       if (!dep) {
@@ -151,7 +151,6 @@ export class Package$Resolution
   override asPackage(): this {
     return this;
   }
-
 }
 
 function packageImportSpec(

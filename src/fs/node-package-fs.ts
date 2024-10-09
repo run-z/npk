@@ -8,7 +8,6 @@ import { PackageFS } from './package-fs.js';
  * Node.js-specific implementation of package file system.
  */
 export class NodePackageFS extends PackageFS {
-
   /**
    * Creates new file system instance.
    *
@@ -225,10 +224,10 @@ export class NodePackageFS extends PackageFS {
     const pathStart = path.indexOf('/');
     const url = new URL(path.slice(pathStart), this.#fsRoot);
 
-    return (path.slice(0, pathStart + 1)
-      + url.pathname.slice(this.#fsRoot.pathname.length)
-      + url.search
-      + url.hash) as `./${string}` | `../${string}`;
+    return (path.slice(0, pathStart + 1) +
+      url.pathname.slice(this.#fsRoot.pathname.length) +
+      url.search +
+      url.hash) as `./${string}` | `../${string}`;
   }
 
   #windowsURIPath(path: string): string {
@@ -304,7 +303,6 @@ export class NodePackageFS extends PackageFS {
 
     return this.#url.pathToFileURL(modulePath).href;
   }
-
 }
 
 const WINDOWS_DRIVE_PATH_PATTERN = /^\\?[a-z0-9]+:\\/i;

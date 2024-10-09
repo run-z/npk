@@ -4,7 +4,6 @@ import { Package$Resolution } from './package.resolution.js';
 import { SubPackage$Resolution } from './sub-package.resolution.js';
 
 export class PackagePrivate$Resolution extends SubPackage$Resolution<Import.Private> {
-
   static uri(host: Package$Resolution, spec: Import.Private): string {
     const url = new URL(host.uri);
 
@@ -33,5 +32,4 @@ export class PackagePrivate$Resolution extends SubPackage$Resolution<Import.Priv
   override get subpath(): `#${string}` {
     return this.importSpec.spec;
   }
-
 }

@@ -16,7 +16,6 @@ import { PackageFS } from './package-fs.js';
  * Can be used e.g. for testing.
  */
 export class VirtualPackageFS extends PackageFS {
-
   readonly #root: string;
   readonly #byURI = new Map<string, VirtualPackage>();
   readonly #byName = new Map<string, Map<string, VirtualPackage>>();
@@ -209,9 +208,9 @@ export class VirtualPackageFS extends PackageFS {
     const { dependencies, peerDependencies, devDependencies } = packageJson;
 
     return (
-      this.#resolveDep(name, dependencies)
-      ?? this.#resolveDep(name, peerDependencies)
-      ?? this.#resolveDep(name, devDependencies)
+      this.#resolveDep(name, dependencies) ??
+      this.#resolveDep(name, peerDependencies) ??
+      this.#resolveDep(name, devDependencies)
     );
   }
 
@@ -260,7 +259,6 @@ export class VirtualPackageFS extends PackageFS {
 
     return await this.resolveName(host, path);
   }
-
 }
 
 interface VirtualPackage {

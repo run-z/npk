@@ -5,7 +5,6 @@ import { PackageJson } from './package.json.js';
  * Targets exported by package entry.
  */
 export abstract class PackageEntryTargets {
-
   /**
    * Exporting entry point of the package.
    */
@@ -38,9 +37,8 @@ export abstract class PackageEntryTargets {
     ...conditions: string[]
   ): PackageJson.LocalPath | undefined {
     return (
-      this.findConditional(type === 'module' ? 'import' : 'require', ...conditions)
-      ?? this.findConditional(...conditions)
+      this.findConditional(type === 'module' ? 'import' : 'require', ...conditions) ??
+      this.findConditional(...conditions)
     );
   }
-
 }

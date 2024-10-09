@@ -10,7 +10,6 @@ import { uriToImport } from './uri-to-import.js';
 import { URI$Resolution } from './uri.resolution.js';
 
 export class ImportResolver {
-
   readonly #root: Import$Resolution;
   readonly #fs: PackageFS;
   readonly #byURI = new Map<string, Promise<Import$Resolution>>();
@@ -88,8 +87,8 @@ export class ImportResolver {
     const { spec: uri } = spec;
 
     return (
-      this.#findByURI(uri)
-      ?? this.#addResolution(uri, createResolution?.(uri) ?? new URI$Resolution(this, spec))
+      this.#findByURI(uri) ??
+      this.#addResolution(uri, createResolution?.(uri) ?? new URI$Resolution(this, spec))
     );
   }
 
@@ -179,8 +178,9 @@ export class ImportResolver {
 
     return this.resolveURI(
       spec,
-      () => host
-        && new PackageFile$Resolution(this, host, `./${uri.slice(host.resolutionBaseURI.length)}`),
+      () =>
+        host &&
+        new PackageFile$Resolution(this, host, `./${uri.slice(host.resolutionBaseURI.length)}`),
     );
   }
 
@@ -199,7 +199,8 @@ export class ImportResolver {
     if (derefURI.startsWith(host.resolutionBaseURI)) {
       return await this.resolveURI(
         derefSpec,
-        () => new PackageFile$Resolution(
+        () =>
+          new PackageFile$Resolution(
             this,
             host,
             `./${derefURI.slice(host.resolutionBaseURI.length)}`,
@@ -209,5 +210,4 @@ export class ImportResolver {
 
     return await this.resolvePackageOrFile(derefSpec);
   }
-
 }

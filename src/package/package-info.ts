@@ -6,7 +6,6 @@ import { PackageJson, PackagePath } from './package.json.js';
  * Information collected for package from its `package.json`.
  */
 export class PackageInfo {
-
   /**
    * Extracts package information from `package.json` contents, unless package info constructed already.
    *
@@ -263,7 +262,6 @@ export class PackageInfo {
       yield* this.#pathExports(path, [...conditions, key], entry);
     }
   }
-
 }
 
 function isPathEntry(key: string): key is '.' | './${string' {

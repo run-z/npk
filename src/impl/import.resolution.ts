@@ -7,8 +7,8 @@ import { Package$Resolution } from './package.resolution.js';
 import { SubPackage$Resolution } from './sub-package.resolution.js';
 
 export abstract class Import$Resolution<out TImport extends Import = Import>
-  implements ImportResolution<TImport> {
-
+  implements ImportResolution<TImport>
+{
   readonly #resolver: ImportResolver;
   readonly #uri: string;
   readonly #importSpec: TImport;
@@ -94,5 +94,4 @@ export abstract class Import$Resolution<out TImport extends Import = Import>
   init(): Promise<this> {
     return Promise.resolve(this);
   }
-
 }

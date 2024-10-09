@@ -13,7 +13,6 @@ import { PackageDir } from './package-dir.js';
  * By default, a {@link NodePackageFS Node.js-specific file system} implementation is used.
  */
 export abstract class PackageFS {
-
   /**
    * URI of the root package.
    */
@@ -142,5 +141,4 @@ export abstract class PackageFS {
       uri = parentURI;
     }
   }
-
 }

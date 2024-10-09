@@ -4,7 +4,6 @@ import { Package$Resolution } from './package.resolution.js';
 import { SubPackage$Resolution } from './sub-package.resolution.js';
 
 export class PackageFile$Resolution extends SubPackage$Resolution<Import.Relative> {
-
   readonly #host: Package$Resolution;
   readonly #subpath: `/${string}`;
 
@@ -28,5 +27,4 @@ export class PackageFile$Resolution extends SubPackage$Resolution<Import.Relativ
   override get subpath(): `/${string}` {
     return this.#subpath;
   }
-
 }

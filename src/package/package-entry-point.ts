@@ -8,7 +8,6 @@ import { PackageJson, PackagePath } from './package.json.js';
  * [entry point]: https://nodejs.org/dist/latest-v18.x/docs/api/packages.html#package-entry-points
  */
 export class PackageEntryPoint extends PackageEntryTargets {
-
   readonly #packageInfo: PackageInfo;
   readonly #path: PackagePath;
   #isPattern?: boolean;
@@ -91,19 +90,19 @@ export class PackageEntryPoint extends PackageEntryTargets {
     return substitution
       ? new PackageEntryPoint$Match(this, substitution)
       : substitution != null
-      ? this
-      : undefined;
+        ? this
+        : undefined;
   }
 
   #findSubstitution(path: PackagePath): string | undefined {
     if (this.isPattern()) {
       this.#pattern ??= new RegExp(
-        '^'
-          + this.path
+        '^' +
+          this.path
             .replaceAll(/[|\\{}()[\]^$+?.]/g, '\\$&')
             .replaceAll('-', '\\x2d')
-            .replaceAll('*', '(.*)')
-          + '$',
+            .replaceAll('*', '(.*)') +
+          '$',
       );
 
       const match = this.#pattern.exec(path);
@@ -157,7 +156,6 @@ export class PackageEntryPoint extends PackageEntryTargets {
 
     return candidates!.values().next().value;
   }
-
 }
 
 export namespace PackageEntryPoint {
@@ -180,7 +178,6 @@ export namespace PackageEntryPoint {
 }
 
 class PackageEntryPoint$Match extends PackageEntryTargets {
-
   readonly #entryPoint: PackageEntryPoint;
   readonly #substitution: string;
 
@@ -200,5 +197,4 @@ class PackageEntryPoint$Match extends PackageEntryTargets {
 
     return localPath?.replaceAll('*', this.#substitution) as PackageJson.LocalPath;
   }
-
 }

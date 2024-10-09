@@ -4,7 +4,6 @@ import { ImportResolver } from './import-resolver.js';
 import { Import$Resolution } from './import.resolution.js';
 
 export class Generic$Resolution extends Import$Resolution<Import> {
-
   readonly #resolver: ImportResolver;
 
   constructor(resolver: ImportResolver, uri: string, importSpec: Import) {
@@ -15,5 +14,4 @@ export class Generic$Resolution extends Import$Resolution<Import> {
   override async resolveImport(spec: Import | string): Promise<ImportResolution> {
     return await this.#resolver.resolve(this.#resolver.recognizeImport(spec));
   }
-
 }

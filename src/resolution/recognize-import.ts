@@ -26,9 +26,9 @@ export function recognizeImport(spec: Import | string): Import {
   }
 
   return (
-    IMPORT_SPEC_PARSERS[spec[0]]?.(spec)
-    ?? recognizeImportURI(spec)
-    ?? recognizeSubPackageImport(spec)
+    IMPORT_SPEC_PARSERS[spec[0]]?.(spec) ??
+    recognizeImportURI(spec) ??
+    recognizeSubPackageImport(spec)
   );
 }
 
@@ -43,7 +43,8 @@ const IMPORT_SPEC_PARSERS: {
     kind: 'private',
     spec: spec as `#${string}`,
   }),
-  '.': spec => recognizeRelativeImport(spec) ?? {
+  '.': spec =>
+    recognizeRelativeImport(spec) ?? {
       // Unscoped package name can not start with dot.
       kind: 'unknown',
       spec,

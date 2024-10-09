@@ -9,8 +9,8 @@ export abstract class SubPackage$Resolution<
     out TImport extends Import.SubPackage = Import.SubPackage,
   >
   extends Import$Resolution<TImport>
-  implements SubPackageResolution<TImport> {
-
+  implements SubPackageResolution<TImport>
+{
   readonly #resolver: ImportResolver;
   #deref: Import$Resolution;
   #initialized = false;
@@ -39,8 +39,8 @@ export abstract class SubPackage$Resolution<
       case 'package':
       case 'entry':
         return (
-          (await this.#resolver.resolveEntry(this.host, spec))
-          ?? (await this.#resolver.resolve(spec))
+          (await this.#resolver.resolveEntry(this.host, spec)) ??
+          (await this.#resolver.resolve(spec))
         );
       case 'private':
         return await this.#resolver.resolvePrivate(this.host, spec);
@@ -91,5 +91,4 @@ export abstract class SubPackage$Resolution<
 
     return this;
   }
-
 }

@@ -4,7 +4,6 @@ import { Package$Resolution } from './package.resolution.js';
 import { SubPackage$Resolution } from './sub-package.resolution.js';
 
 export class PackageEntry$Resolution extends SubPackage$Resolution<Import.Entry> {
-
   static uri(resolver: ImportResolver, host: Package$Resolution, subpath: `/${string}`): string {
     return resolver.fs.resolvePath(host, subpath.slice(1));
   }
@@ -38,5 +37,4 @@ export class PackageEntry$Resolution extends SubPackage$Resolution<Import.Entry>
   override get subpath(): `/${string}` {
     return this.#subpath;
   }
-
 }

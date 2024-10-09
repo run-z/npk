@@ -5,7 +5,6 @@ import { Import$Resolution } from './import.resolution.js';
 import { uriToImport } from './uri-to-import.js';
 
 export class URI$Resolution extends Import$Resolution<Import.URI> {
-
   readonly #resolver: ImportResolver;
 
   constructor(resolver: ImportResolver, importSpec: Import.URI) {
@@ -29,5 +28,4 @@ export class URI$Resolution extends Import$Resolution<Import.URI> {
   async #resolveURIImport(path: string): Promise<ImportResolution> {
     return this.#resolver.resolveURI(uriToImport(new URL(path, this.uri)));
   }
-
 }
